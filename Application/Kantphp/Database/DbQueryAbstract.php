@@ -167,6 +167,9 @@ abstract class DbQueryAbstract extends Base {
      * @param split string
      */
     public function where($key, $value = '', $split = 'AND') {
+        if (empty($key)) {
+            return $this;
+        }
         if (is_array($key)) {
             foreach ($key as $k => $v) {
                 if (is_array($v) && count($v) == 2 && is_array($v[1])) {
@@ -197,6 +200,9 @@ abstract class DbQueryAbstract extends Base {
      * @example whereExp(" ? = ? )", 'endtime', 0, 'OR');
      */
     public function whereExp($exp, $key, $value, $split = 'AND') {
+        if (empty($key)) {
+            return $this;
+        }
         if (is_array($value)) {
             foreach ($value as $_k => $val) {
                 $value[$_k] = $this->quote($val);
@@ -217,6 +223,9 @@ abstract class DbQueryAbstract extends Base {
      * @param split string
      */
     public function whereNotEqual($key, $value, $split = 'AND') {
+        if (empty($key)) {
+            return $this;
+        }
         $where = $this->checkField($key) . " != " . $this->quote($value);
         $this->where .= ($this->where ? " $split " : '') . $where;
         return $this;
@@ -233,6 +242,9 @@ abstract class DbQueryAbstract extends Base {
      * @example whereMore('total', '40000', 1, 'OR')
      */
     public function whereMore($key, $value, $equal = 1, $split = 'AND') {
+        if (empty($key)) {
+            return $this;
+        }
         $mark = $equal ? '>=' : '>';
         $where = $this->chekc_field($key) . $mark . $this->quote($value);
         $this->where .= ($this->where ? " $split " : '') . $where;
@@ -250,6 +262,9 @@ abstract class DbQueryAbstract extends Base {
      * @example whereLess('price', '200', 1, 'AND')
      */
     public function whereLess($key, $value, $equal = 1, $split = 'AND') {
+        if (empty($key)) {
+            return $this;
+        }
         $mark = $equal ? '<=' : '<';
         $where = $this->checkField($key) . $mark . $this->quote($value);
         $this->where .= ($this->where ? " $split " : '') . $where;
@@ -288,6 +303,9 @@ abstract class DbQueryAbstract extends Base {
      * @param split string
      */
     public function whereNotIn($key, $values, $split = 'AND') {
+        if (empty($key)) {
+            return $this;
+        }
         if (count($values) == 0) {
             return $this;
         }
@@ -309,6 +327,9 @@ abstract class DbQueryAbstract extends Base {
      * @param split string
      */
     public function whereBetweenAnd($key, $begin, $end, $split = 'AND') {
+        if (empty($key)) {
+            return $this;
+        }
         $where = $this->checkField($key) . " BETWEEN " . $this->quote($begin) . " AND " . $this->quote($end);
         $this->where .= ($this->where ? " $split " : '') . $where;
         return $this;
@@ -324,6 +345,9 @@ abstract class DbQueryAbstract extends Base {
      * @param kh string
      */
     public function whereLike($key, $value, $split = 'AND', $kh = '') {
+        if (empty($key)) {
+            return $this;
+        }
         $where = $this->checkField($key) . " LIKE " . $this->quote($value);
         $this->where .= ($this->where ? " $split " : '') . ($kh == '(' ? '(' : '') . $where . ($kh == ')' ? ')' : '');
         return $this;
@@ -337,6 +361,9 @@ abstract class DbQueryAbstract extends Base {
      * @param value string
      */
     public function whereOr($key, $value) {
+        if (empty($key)) {
+            return $this;
+        }
         $where = $this->checkField($key) . " = " . $this->quote($value);
         $this->where .= ($this->where ? ' OR ' : '') . $where;
         return $this;
@@ -352,6 +379,9 @@ abstract class DbQueryAbstract extends Base {
      * @param kh string
      */
     public function whereConcatLike($keys, $value, $split = 'AND', $kh = '') {
+        if (empty($key)) {
+            return $this;
+        }
         if (is_string($keys)) {
             $keys = explode(',', $keys);
         }
@@ -372,6 +402,9 @@ abstract class DbQueryAbstract extends Base {
      * @param kh string
      */
     public function wehreExist($sql, $split = 'AND', $kh = '') {
+        if (empty($sql)) {
+            return $this;
+        }
         $where = 'exists(' . $this->getTable($sql) . ')';
         $this->where .= ($this->where ? " $split " : '') . ($kh == '(' ? '(' : '') . $where . ($kh == ')' ? ')' : '');
     }
@@ -404,7 +437,7 @@ abstract class DbQueryAbstract extends Base {
      * @param type string
      */
     public function orderBy($field, $type = 'ASC') {
-        if(empty($field)) {
+        if (empty($field)) {
             return $this;
         } elseif (is_string($field)) {
             if (strpos($field, ' ')) {

@@ -29,16 +29,17 @@ final class App extends Base {
     }
 
     public function run() {
-        $this->initialize();
+        $this->_initialize();
     }
 
     /**
      *
      * Initialize
      */
-    private function initialize() {
-        $this->bootstrap();
-        $ctrl = $this->loadCTRL();
+    private function _initialize() {
+        $this->_bootstrap();
+        $this->_bootstrapForModule();
+        $ctrl = $this->_loadCTRL();
         $act = $this->get['act'] ? $this->get['act'] . 'Action' : $this->get['act'] . 'Action';
         //Call controller's function
         if (method_exists($ctrl, $act)) {
@@ -57,7 +58,7 @@ final class App extends Base {
         }
     }
 
-    private function loadCTRL() {
+    private function _loadCTRL() {
         static $classes = array();
         $module = isset($this->get['module']) ? ucfirst($this->get['module']) : '';
         $classname = ucfirst($this->get['ctrl']) . 'Controller';
@@ -94,10 +95,37 @@ final class App extends Base {
         }
     }
 
-    private function bootstrap() {
+    private function _bootstrap() {
         static $classes = array();
         $classname = '_Bootstrap';
         $filepath = APP_PATH . 'Bootstrap' . DIRECTORY_SEPARATOR . $classname . '.php';
+        $key = md5($filepath . $classname);
+        if (isset($classes[$key])) {
+            if (!empty($classes[$key])) {
+                return $classes[$key];
+            } else {
+                return true;
+            }
+        }
+        if (file_exists($filepath)) {
+            include $filepath;
+            if (class_exists($classname)) {
+                $bootstrap = new $classname;
+                if (method_exists($bootstrap, 'initialize')) {
+                    $bootstrap->initialize();
+                }
+            }
+        }
+    }
+
+    private function _bootstrapForModule() {
+        $module = isset($this->get['module']) ? ucfirst($this->get['module']) : '';
+        $classname = $module . 'Bootstrap';
+        if ($module) {
+            $filepath = APP_PATH . 'Module' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'Bootstrap' . DIRECTORY_SEPARATOR . $classname . '.php';
+        } else {
+            $filepath = APP_PATH . 'Bootstrap' . DIRECTORY_SEPARATOR . $classname . '.php';
+        }
         $key = md5($filepath . $classname);
         if (isset($classes[$key])) {
             if (!empty($classes[$key])) {

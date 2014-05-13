@@ -31,7 +31,7 @@ class Dir {
      * @param mode string
      * @return boolean True on success or false
      */
-    public function create($path, $mode = 0777) {
+    public static function create($path, $mode = 0777) {
         if (is_dir($path)) {
             return true;
         }
@@ -65,7 +65,7 @@ class Dir {
             return false;
         }
         if (!is_dir($todir)) {
-            $this->create($todir);
+            self::create($todir);
         }
         $list = glob($fromdir . '*');
         if (!empty($list)) {

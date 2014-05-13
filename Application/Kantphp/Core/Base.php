@@ -8,7 +8,7 @@
  */
 !defined('IN_KANT') && exit('Access Denied');
 
-require_once KANT_PATH . 'Core/Uri.php';
+require_once KANT_PATH . 'Core/Router.php';
 require_once KANT_PATH . 'Core/KantException.php';
 require_once KANT_PATH . 'Controller/BaseController.php';
 require_once KANT_PATH . 'Model/BaseModel.php';
@@ -38,11 +38,11 @@ class Base {
     protected $sessionAdapter;
 
     public function __construct() {
-        $uri = Uri::getInstance()->parse();
-        $this->get = $uri->get();
-        $this->post = $uri->post();
-        $this->route = $uri->route();
-        $this->request = $uri->request();
+        $routerObj = Router::getInstance()->parse();
+        $this->get = $routerObj->get();
+        $this->post = $routerObj->post();
+        $this->route = $routerObj->route();
+        $this->request = $routerObj->request();
         $this->debug = $this->debugStatus();
         $this->loadCache();
         $this->loadCookie();
