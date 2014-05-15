@@ -439,19 +439,26 @@ abstract class DbQueryAbstract extends Base {
     public function orderBy($field, $type = 'ASC') {
         if (empty($field)) {
             return $this;
-        } elseif (is_string($field)) {
-            if (strpos($field, ' ')) {
-                list($field, $type) = explode(' ', $field);
-            }
-            $orderBy = $this->checkField($field) . ($type == 'DESC' ? (' ' . $type) : '');
         } elseif (is_array($field)) {
-            $split = '';
             foreach ($field as $key => $val) {
-                $orderBy .= $split . $this->checkField($key) . ($val == 'DESC' ? (' ' . $val) : '');
-                $split = ',';
+                if (is_int($key)) {
+                    call_user_func_array(array($this, __FUNCTION__), array($val));
+                } else {
+                    call_user_func_array(array($this, __FUNCTION__), array($key, $val));
+                }
             }
-        }
-        $this->orderBy .= ($this->orderBy ? ',' : '') . $orderBy;
+        } elseif (is_string($field)) {
+            $orderBy = '';
+            if (strpos($field, ',')) {
+                $orderBy .= $this->checkField($field) . ' ';
+            } else {
+                if (strpos($field, ' ')) {
+                    list($field, $type) = explode(' ', $field);
+                }
+                $orderBy .= $this->checkField($field) . ($type == 'DESC' ? (' ' . $type) : '');
+            }
+            $this->orderBy .= ($this->orderBy ? ', ' : '') . $orderBy;
+        } 
         return $this;
     }
 

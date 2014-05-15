@@ -266,7 +266,7 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
      * @return 
      */
     public function update($clearVar = true) {
-        $sql = $this->insertSql(true, true);
+        $sql = $this->insertSql(true);
         $result = $this->execute($sql, 'unbuffer');
         $this->cacheSql();
         if ($clearVar) {

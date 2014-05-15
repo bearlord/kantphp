@@ -15,7 +15,7 @@ class Dir {
      * @param path string
      * @return path string
      */
-    public function path($path) {
+    public static function path($path) {
         $path = str_replace('\\', '/', $path);
         if (substr($path, -1) != '/') {
             $path = $path . '/';

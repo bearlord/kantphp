@@ -11,7 +11,7 @@ define('IN_KANT', TRUE);
 define('KANT_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 
 require_once KANT_PATH . 'Function/Global.php';
-require_once KANT_PATH . 'Core/App.php';
+require_once KANT_PATH . 'Core/Application.php';
 
 require_once APP_PATH . 'Function/Common.php';
 //App path
@@ -44,8 +44,8 @@ class Kant {
      * Create application
      * @return object on success
      */
-    public static function createApp() {
-        App::getInstance()->run();
+    public static function createApplication($config = '') {
+        Application::getInstance()->boot($config);
     }
 
 }
