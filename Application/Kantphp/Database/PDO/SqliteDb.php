@@ -58,7 +58,7 @@ class PdoSqliteDb extends DbQueryAbstract implements DbQueryInterface {
         $dsn = sprintf("%s:%s", "sqlite", $this->_config['database']);
 
         //Request a persistent connection, rather than creating a new connection.
-        if (isset($this->_config['persistent ']) && $this->_config['persistent'] == true) {
+        if (isset($this->_config['persistent']) && $this->_config['persistent'] == true) {
             $options = array(PDO::ATTR_PERSISTENT => true);
         } else {
             $options = null;
@@ -78,7 +78,7 @@ class PdoSqliteDb extends DbQueryAbstract implements DbQueryInterface {
 
     /**
      *
-     * 关闭数据库连接
+     * Close database connection
      *
      */
     public function close() {
