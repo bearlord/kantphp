@@ -113,6 +113,9 @@ abstract class DbQueryAbstract extends Base {
      * @param value string
      */
     public function set($key, $value = null) {
+        if (empty($key)) {
+            return $this;
+        }
         if (is_array($key)) {
             foreach ($key as $k => $v) {
                 $this->set($k, $v);
@@ -132,6 +135,9 @@ abstract class DbQueryAbstract extends Base {
      * @param value string
      */
     public function setAdd($key, $value = 1) {
+        if (empty($key)) {
+            return $this;
+        }
         if (is_array($key)) {
             foreach ($key as $k => $v) {
                 $this->setAdd($k, $v);
@@ -151,7 +157,14 @@ abstract class DbQueryAbstract extends Base {
      * @param value string
      */
     public function setDec($key, $value = 1) {
-        if ($value) {
+        if (empty($key)) {
+            return $this;
+        }
+        if (is_array($key)) {
+            foreach ($key as $k => $v) {
+                $this->setAdd($k, $v);
+            }
+        } else {
             $this->checkField($key);
             $this->set[$key] = $key . '-' . $this->quote($value);
         }
@@ -458,7 +471,7 @@ abstract class DbQueryAbstract extends Base {
                 $orderBy .= $this->checkField($field) . ($type == 'DESC' ? (' ' . $type) : '');
             }
             $this->orderBy .= ($this->orderBy ? ', ' : '') . $orderBy;
-        } 
+        }
         return $this;
     }
 
