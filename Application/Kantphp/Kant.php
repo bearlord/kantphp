@@ -12,7 +12,7 @@ define('KANT_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 
 require_once KANT_PATH . 'Function/Global.php';
 require_once KANT_PATH . 'Core/Application.php';
-
+require_once KANT_PATH . 'Core/KantRegistry.php';
 require_once APP_PATH . 'Function/Common.php';
 //App path
 if (!defined('APP_PATH'))
@@ -44,8 +44,10 @@ class Kant {
      * Create application
      * @return object on success
      */
-    public static function createApplication($config = '') {
-        Application::getInstance()->boot($config);
+    public static function createApplication($environment = 'Development') {
+        KantRegistry::set('environment', $environment);
+        Application::getInstance()->boot();
+        
     }
 
 }

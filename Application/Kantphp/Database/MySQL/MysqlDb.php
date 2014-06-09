@@ -75,6 +75,21 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
     }
 
     /**
+     * Regexp
+     * @param type $key
+     * @param type $type
+     * @param type $value
+     * @param type $split
+     */
+    public function whereRegexp($key, $value, $split = 'AND') {
+        if (empty($key)) {
+            return $this;
+        }
+        $where = $this->checkField($key) . ' REGEXP ' . $this->quote($value);
+        $this->where .= ($this->where ? " $split " : '') . $where;
+    }
+
+    /**
      *
      * Execute SQL
      *

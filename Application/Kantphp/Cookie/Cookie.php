@@ -123,7 +123,7 @@ final class Cookie {
      */
     public function set($var, $value = '', $time = 0) {
         //If $time exists,set cookie time is $time,and if $time is null,set cookie time expired
-        $time = $time > 0 ? (time() + $time) : ($value == '' ? time() - 31536000 : 0);
+        $time = $time > 0 ? (time() + $time) : ($value == '' ? time() - 31536000 : $this->_cookieConfig['cookie_ttl']);
         $s = $_SERVER['SERVER_PORT'] == '443' ? 1 : 0;
         $var = $this->_cookieConfig['cookie_pre'] . $var;
         if (is_array($value)) {

@@ -28,7 +28,7 @@ final class Application extends Base {
         return self::$_application;
     }
 
-    public function boot($config = 'Config') {
+    public function boot($environment = 'Development') {
         $this->cfg = $this->loadCfg('Config');
         $this->_initialize();
     }

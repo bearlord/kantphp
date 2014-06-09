@@ -187,7 +187,11 @@ abstract class DbQueryAbstract extends Base {
             foreach ($key as $k => $v) {
                 if (is_array($v) && count($v) == 2 && is_array($v[1])) {
                     $fun = $v[0];
-                    $args = array_merge(array($k), $v[1]);
+                    if (is_string($k)) {
+                        $args = array_merge(array($k), $v[1]);
+                    } elseif (is_int($k)) {
+                        $args = $v[1];
+                    }
                     call_user_func_array(array($this, $fun), $args);
                 } else {
                     $this->where($k, $v, $split);
@@ -212,18 +216,7 @@ abstract class DbQueryAbstract extends Base {
      * @param split string
      * @example whereExp(" ? = ? )", 'endtime', 0, 'OR');
      */
-    public function whereExp($exp, $key, $value, $split = 'AND') {
-        if (empty($key)) {
-            return $this;
-        }
-        if (is_array($value)) {
-            foreach ($value as $_k => $val) {
-                $value[$_k] = $this->quote($val);
-            }
-            $value = implode(",", $value);
-        }
-        $where = sprintf(str_replace(" ? ", " %s ", $exp), $this->checkField($key), $value);
-        $this->where .= ($this->where ? " $split " : '') . $where;
+    public function whereRegexp($key, $value, $split = 'AND') {
         return $this;
     }
 

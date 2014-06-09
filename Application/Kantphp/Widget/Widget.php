@@ -26,6 +26,12 @@ abstract class Widget extends Base {
         return $content;
     }
 
+    public function buildTplFile($widgetmethod) {
+        $path = strtolower(str_replace('Widget', '', $widgetmethod));
+        $path = str_replace("::", "/", $path);
+        return $path;
+    }
+
 }
 
 ?>

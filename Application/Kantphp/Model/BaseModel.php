@@ -62,7 +62,7 @@ class BaseModel extends Base {
      * 
      */
     public function createDbo() {
-        $this->_dbConfig = require_once CFG_PATH . 'Db.php';
+        $this->_dbConfig = require_once CFG_PATH . KantRegistry::get('environment') . DIRECTORY_SEPARATOR . 'Db.php';
         if (!isset($this->_dbConfig[$this->adapter])) {
             $this->adapter = 'default';
         }
@@ -399,4 +399,7 @@ class BaseModel extends Base {
         return $this->db->fetch($result);
     }
 
+    public function lastSqls() {
+        return $this->db->getLastSqls();
+    }
 }

@@ -22,6 +22,7 @@ class Base {
     protected $post;
     protected $route;
     protected $request;
+    protected $environment = 'Development';
     protected $cfg;
     protected $debug;
     protected $input;
@@ -53,6 +54,7 @@ class Base {
     /**
      *
      * Load system class
+     * 
      * @param string $classname
      * @param path $path
      * @param boolean $initialize
@@ -86,28 +88,8 @@ class Base {
 
     /**
      *
-     * Load system functioin
-     * @param string $func
-     */
-    public static function loadSysFunc($func) {
-        static $funcs = array();
-        $filepath = KANT_PATH . 'Function' . DIRECTORY_SEPARATOR . $func . '.func.php';
-        $key = md5($func);
-        if (isset($funcs[$key]))
-            return true;
-        if (file_exists($filepath)) {
-            include_once $filepath;
-        } else {
-            $funcs[$key] = false;
-            return false;
-        }
-        $funcs[$key] = true;
-        return true;
-    }
-
-    /**
-     *
      * Load third-party libary
+     * 
      * @param string $classname
      * @param integer $initialize
      * @return
@@ -139,6 +121,7 @@ class Base {
     /**
      *
      * Load config
+     * 
      * @param string $file
      * @param string $key
      * @param string $default
@@ -155,7 +138,9 @@ class Base {
                 return $default;
             }
         }
-        $filepath = CFG_PATH . $file . '.php';
+        $environment = KantRegistry::get('environment');
+        $filepath = CFG_PATH . $environment . DIRECTORY_SEPARATOR . $file . '.php';
+        
         if (file_exists($filepath)) {
             $configs[$file] = include $filepath;
         }
@@ -206,8 +191,21 @@ class Base {
     }
 
     /**
+     * Register autoload function
      * 
-     * Redirect
+     * @param string $func
+     * @param boolean $enable
+     */
+    public static function registerAutoload($func = '', $enable = true) {
+        if ($func == '') {
+            $func = array(self, 'loadSysClass');
+        }
+        $enable ? spl_autoload_register($func) : spl_autoload_unregister($func);
+    }
+
+    /**
+     * 
+     * Page redirection with message 
      * 
      * @param string $message
      * @param string $url
@@ -224,19 +222,23 @@ class Base {
     }
 
     /**
-     * Get current language
+     * Get current user defined language
+     * 
      * @return
      */
     public function getLang() {
         static $lang;
         if (empty($lang)) {
-            $this->cfg = $this->loadCfg('Config');
-            $lang = !empty($_COOKIE['lang']) ? $_COOKIE['lang'] : $this->cfg['system']['lang'];
+            $lang = !empty($_COOKIE['lang']) ? $_COOKIE['lang'] : $this->loadCfg('Config', 'lang');
+            if (empty($lang)) {
+                $lang = 'en_US';
+            }
         }
         return $lang;
     }
 
     /**
+     * Language localization
      * 
      * @staticvar array $LANG
      * @param string $language
@@ -245,8 +247,7 @@ class Base {
     public function lang($language = 'no_language') {
         static $LANG = array();
         if (!$LANG) {
-            $this->cfg = $this->loadCfg('Config');
-            $lang = !empty($_COOKIE['lang']) ? $_COOKIE['lang'] : $this->cfg['system']['lang'];
+            $lang = $this->getLang();
             require KANT_PATH . 'Locale' . DIRECTORY_SEPARATOR . $lang . DIRECTORY_SEPARATOR . 'System.php';
             if (file_exists(APP_PATH . 'Locale' . DIRECTORY_SEPARATOR . $lang . DIRECTORY_SEPARATOR . 'App.php')) {
                 require APP_PATH . 'Locale' . DIRECTORY_SEPARATOR . $lang . DIRECTORY_SEPARATOR . 'App.php';
@@ -267,7 +268,7 @@ class Base {
      * @return type
      */
     public function loadCache() {
-        $this->_cacheConfig = $this->loadCfg('Config', 'cache');
+        $this->_cacheConfig = $this->loadCfg('Cache');
         if (!isset($this->_cacheConfig[$this->cacheAdapter])) {
             $this->cacheAdapter = 'default';
         }
@@ -325,6 +326,15 @@ class Base {
         }
     }
 
+    /**
+     * 
+     * Format Rest URL
+     *
+     * @param string $url
+     * @param array $vars
+     * @param string $suffix
+     * @return string
+     */
     public function url($url = '', $vars = '', $suffix = true) {
         $info = parse_url($url);
         if (isset($info['fragment'])) {
@@ -417,7 +427,7 @@ class Base {
 
     public function widget($widgetname, $method, $data = array(), $return = false) {
         $module = isset($this->get['module']) ? ucfirst($this->get['module']) : '';
-        $classname = $widgetname . 'Widget';
+        $classname = ucfirst($widgetname) . 'Widget';
         if ($module) {
             $filepath = APP_PATH . 'Module' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'Widget' . DIRECTORY_SEPARATOR . $classname . '.php';
         } else {
@@ -441,6 +451,11 @@ class Base {
         }
     }
 
+    /**
+     * Debug status
+     * 
+     * @return 
+     */
     public function debugStatus() {
         $this->cfg = $this->loadCfg('Config');
         if (!empty($this->cfg['system']['debug'])) {
