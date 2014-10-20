@@ -8,14 +8,6 @@
  */
 !defined('IN_KANT') && exit('Access Denied');
 
-require_once KANT_PATH . 'Core/Router.php';
-require_once KANT_PATH . 'Core/KantException.php';
-require_once KANT_PATH . 'Controller/BaseController.php';
-require_once KANT_PATH . 'Model/BaseModel.php';
-require_once KANT_PATH . 'View/View.php';
-require_once KANT_PATH . 'Help/Input.php';
-require_once KANT_PATH . 'Cache/Cache.php';
-
 class Base {
 
     protected $get;
@@ -39,11 +31,11 @@ class Base {
     protected $sessionAdapter;
 
     public function __construct() {
-        $routerObj = Router::getInstance()->parse();
-        $this->get = $routerObj->get();
-        $this->post = $routerObj->post();
-        $this->route = $routerObj->route();
-        $this->request = $routerObj->request();
+//        $routerObj = Router::getInstance()->parse();
+//        $this->get = $routerObj->get();
+//        $this->post = $routerObj->post();
+//        $this->route = $routerObj->route();
+//        $this->request = $routerObj->request();
         $this->debug = $this->debugStatus();
         $this->loadCache();
         $this->loadCookie();
@@ -139,11 +131,20 @@ class Base {
             }
         }
         $environment = KantRegistry::get('environment');
-        $filepath = CFG_PATH . $environment . DIRECTORY_SEPARATOR . $file . '.php';
-        
-        if (file_exists($filepath)) {
-            $configs[$file] = include $filepath;
+        if ($file == 'Config') {
+            //Core configuration
+            $coreConfig = include KANT_PATH . DIRECTORY_SEPARATOR . 'Config/Base.php';
+            //Application configration
+            $appConfig = include CFG_PATH . $environment . DIRECTORY_SEPARATOR . 'Config.php';
+            $configs[$file] = array_merge($configs, $appConfig);
+        } else {
+            $filepath = CFG_PATH . $environment . DIRECTORY_SEPARATOR . $file . '.php';
+            if (file_exists($filepath)) {
+                $configs[$file] = include $filepath;
+            }
         }
+
+
         if (empty($key)) {
             return $configs[$file];
         } elseif (isset($configs[$file][$key])) {
@@ -160,9 +161,12 @@ class Base {
      * @param classname string
      * @param initialize integer[0,1]
      */
-    public function loadModel($classname, $initialize = 1) {
+    public function loadModel($classname, $initialize = 1, $module = '') {
         static $classes = array();
-        $module = isset($this->get['module']) ? ucfirst($this->get['module']) : '';
+        if ($module == '') {
+            $dispatchInfo = KantRegistry::get('dispatchInfo');
+            $module = isset($dispatchInfo['module']) ? $dispatchInfo['module'] : '';
+        }
         $classname = ucfirst($classname) . 'Model';
         if ($module) {
             $filepath = APP_PATH . 'Module' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'Model' . DIRECTORY_SEPARATOR . $classname . '.php';
@@ -188,19 +192,6 @@ class Base {
         } else {
             return false;
         }
-    }
-
-    /**
-     * Register autoload function
-     * 
-     * @param string $func
-     * @param boolean $enable
-     */
-    public static function registerAutoload($func = '', $enable = true) {
-        if ($func == '') {
-            $func = array(self, 'loadSysClass');
-        }
-        $enable ? spl_autoload_register($func) : spl_autoload_unregister($func);
     }
 
     /**
@@ -291,7 +282,7 @@ class Base {
         if ($this->cookie) {
             return $this->cookie;
         }
-        require_once KANT_PATH . 'Cookie' . DIRECTORY_SEPARATOR . 'Cookie.php';
+//        require_once KANT_PATH . 'Cookie' . DIRECTORY_SEPARATOR . 'Cookie.php';
         $this->_cookieConfig = $this->loadCfg('Cookie');
         try {
             $this->cookie = Cookie::getInstance($this->_cookieConfig);
@@ -311,7 +302,7 @@ class Base {
         if ($this->sessioin) {
             return $this->session;
         }
-        require_once KANT_PATH . 'Session' . DIRECTORY_SEPARATOR . 'Session.php';
+//        require_once KANT_PATH . 'Session' . DIRECTORY_SEPARATOR . 'Session.php';
         $this->_sessionConfig = $this->loadCfg('Session');
         if (!isset($this->_sessionConfig[$this->sessionAdapter])) {
             $this->sessionAdapter = 'default';
@@ -324,6 +315,7 @@ class Base {
             }
             exit('Load Cache Error: ' . $e->getMessage());
         }
+        return $this->session;
     }
 
     /**
@@ -361,7 +353,7 @@ class Base {
         $url = trim($url, $depr);
         $path = explode($depr, $url);
 
-        if ($this->cfg['module'] === true) {
+        if ($this->cfg['module_type'] === true) {
             $var['module'] = $path[0];
             $var['ctrl'] = !empty($path[1]) ? $path[1] : $this->cfg['route']['ctrl'];
             $var['act'] = !empty($path[2]) ? $path[2] : $this->cfg['route']['act'];
@@ -457,12 +449,13 @@ class Base {
      * @return 
      */
     public function debugStatus() {
-        $this->cfg = $this->loadCfg('Config');
-        if (!empty($this->cfg['system']['debug'])) {
+        $this->debug = $this->loadCfg('Config', 'debug');
+        if (!empty($this->debug)) {
             ini_set('display_errors', 1);
             error_reporting(E_ALL);
-            return $this->cfg['system']['debug'];
+            return $this->debug;
         }
+        return false;
     }
 
     /**

@@ -16,14 +16,19 @@
  */
 class View extends Base {
 
-    public $cfg;
-    public $debug;
     public $theme = 'default';
+    protected $dispatchInfo;
 
     public function __construct() {
         parent::__construct();
+        $this->dispatchInfo = KantRegistry::get('dispatchInfo');
     }
 
+    /**
+     * 
+     * @param type $key
+     * @return type
+     */
     public function __get($key) {
         if (isset($this->$key)) {
             return($this->$key);
@@ -32,6 +37,11 @@ class View extends Base {
         }
     }
 
+    /**
+     * 
+     * @param type $key
+     * @param type $value
+     */
     public function __set($key, $value) {
         $this->$key = $value;
     }
@@ -43,12 +53,12 @@ class View extends Base {
      */
     public function display($file = '') {
         if (empty($file)) {
-            $ctrl = strtolower($this->get['ctrl']);
-            $act = strtolower($this->get['act']);
+            $ctrl = strtolower($this->dispatchInfo['ctrl']);
+            $act = strtolower($this->dispatchInfo['act']);
         } else {
             list($ctrl, $act) = explode("/", strtolower($file));
         }
-        $tpldir = $this->_getTplDir();
+        $tpldir = $this->getTplDir();
         $tplfile = $tpldir . $ctrl . DIRECTORY_SEPARATOR . $act . '.php';
         if (!file_exists($tplfile)) {
             if ($this->debug) {
@@ -58,11 +68,14 @@ class View extends Base {
             }
         }
         include_once $tplfile;
-        if (!headers_sent()) {
-            header("Content-type: text/html; charset=utf-8");
-        }
     }
 
+    /**
+     * 
+     * @param type $file
+     * @return type
+     * @throws RuntimeException
+     */
     public function fetch($file) {
         if (empty($file)) {
             return;
@@ -84,14 +97,20 @@ class View extends Base {
         return $content;
     }
 
+    /**
+     * 
+     * @param type $file
+     * @param type $module
+     * @throws RuntimeException
+     */
     public function includeTpl($file, $module = '') {
         if (empty($file)) {
-            $ctrl = strtolower($this->get['ctrl']);
-            $act = strtolower($this->get['act']);
+            $ctrl = strtolower($this->dispatchInfo['ctrl']);
+            $act = strtolower($this->dispatchInfo['act']);
         } else {
             list($ctrl, $act) = explode("/", strtolower($file));
         }
-        $tpldir = $this->_getTplDir($module);
+        $tpldir = $this->getTplDir($module);
         $tplfile = $tpldir . $ctrl . DIRECTORY_SEPARATOR . $act . '.php';
         if (!file_exists($tplfile)) {
             if ($this->debug) {
@@ -106,9 +125,9 @@ class View extends Base {
     /**
      * Get Tpl Dir
      */
-    private function _getTplDir($module = '') {
+    protected function getTplDir($module = '') {
         if ($module == '') {
-            $module = isset($this->get['module']) ? ucfirst($this->get['module']) : '';
+            $module = isset($this->dispatchInfo['module']) ? ucfirst($this->dispatchInfo['module']) : '';
         } else {
             $module = ucfirst($module);
         }

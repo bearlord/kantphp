@@ -11,8 +11,8 @@ define('IN_KANT', TRUE);
 define('KANT_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 
 require_once KANT_PATH . 'Function/Global.php';
-require_once KANT_PATH . 'Core/Application.php';
-require_once KANT_PATH . 'Core/KantRegistry.php';
+require_once KANT_PATH . 'Core/KantApplication.php';
+
 require_once APP_PATH . 'Function/Common.php';
 //App path
 if (!defined('APP_PATH'))
@@ -36,18 +36,3 @@ if (!defined('APP_URL')) {
 define('PUBLIC_URL', APP_URL . 'public/');
 
 //header("Content-type: text/html; charset=utf-8"); 
-
-class Kant {
-
-    /**
-     *
-     * Create application
-     * @return object on success
-     */
-    public static function createApplication($environment = 'Development') {
-        KantRegistry::set('environment', $environment);
-        Application::getInstance()->boot();
-        
-    }
-
-}

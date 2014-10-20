@@ -433,6 +433,7 @@ abstract class DbQueryAbstract extends Base {
             $groupBy = $this->checkField($groups);
         }
         $this->groupBy .= ($this->groupBy ? ',' : '') . $groupBy;
+        return $this;
     }
 
     /**
