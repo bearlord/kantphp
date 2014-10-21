@@ -31,6 +31,11 @@ class Base {
     protected $sessionAdapter;
 
     public function __construct() {
+//        $routerObj = Router::getInstance()->parse();
+//        $this->get = $routerObj->get();
+//        $this->post = $routerObj->post();
+//        $this->route = $routerObj->route();
+//        $this->request = $routerObj->request();
         $this->debug = $this->debugStatus();
         $this->loadCache();
         $this->loadCookie();

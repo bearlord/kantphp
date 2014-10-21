@@ -13,9 +13,10 @@ class KantRouter extends Router {
 }
 
 class Router {
-
     private static $_instance = null;
     private $_rules = array();
+    //系统生成的参数
+    private $_param;
     protected $request_uri;
     protected $script_name;
     protected $_enableDynamicMatch = true;
@@ -126,36 +127,28 @@ class Router {
         $pathInfo = trim($pathInfo, '/');
         $tmp = explode('/', $pathInfo);
         if ($this->getModuleType() == true) {
-            if ($module = current($tmp)) {
-                $dispatchInfo['module'] = ucfirst(current($tmp));
-            } else {
-                $dispatchInfo['module'] = $this->_rules['module'];
-            }
+            $dispatchInfo['module'] = ucfirst(current($tmp));
             if ($controller = next($tmp)) {
                 $dispatchInfo['ctrl'] = ucfirst($controller);
             } else {
-                $dispatchInfo['ctrl'] = $this->_rules['ctrl'];
+                $dispatchInfo['ctrl'] = $this->_dynamicRule['defaultController'];
             }
         } else {
             if ($controller = current($tmp)) {
                 $dispatchInfo['ctrl'] = ucfirst($controller);
             } else {
-                $dispatchInfo['ctrl'] = $this->_rules['ctrl'];
+                $dispatchInfo['ctrl'] = $this->_dynamicRule['defaultController'];
             }
         }
         if ($action = next($tmp)) {
-            if (strpos($action, "?") !== false) {
-                $strpos = strpos($action, "?");
-                $action = substr($action, 0, $strpos);
-            }
             $dispatchInfo['act'] = ucfirst($action);
         } else {
-            $dispatchInfo['act'] = $this->_rules['act'];
+            $dispatchInfo['act'] = $this->_dynamicRule['defaultAction'];
         }
         $params = array();
         while (false !== ($next = next($tmp))) {
             $arr = preg_split("/[,:=-]/", $next, 2);
-
+           
             $dispatchInfo[$arr[0]] = urldecode($arr[1]);
         }
         return $dispatchInfo;
@@ -175,7 +168,7 @@ class Router {
 //        KantRegistry::set('_params', $params);
         return $dispatchInfo;
     }
-
+    
     /**
      *  Get
      * 
@@ -214,5 +207,4 @@ class Router {
         }
         return $route;
     }
-
 }

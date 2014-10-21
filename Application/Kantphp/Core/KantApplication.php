@@ -318,7 +318,7 @@ final class Kant extends Base {
      */
     public function setPathInfo($pathinfo = null) {
         if (null === $pathinfo) {
-            if (self::$_config['path_info_repair'] == false) {
+            if (self::$_config['path_info_repair'] != false) {
                 $pathinfo = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '';
             } else {
                 foreach (array('REQUEST_URI', 'HTTP_X_REWRITE_URL', 'argv') as $var) {
@@ -361,7 +361,6 @@ final class Kant extends Base {
         if (null === $dispatchInfo) {
             $router = $this->getRouter();
             $router->setModuleType(self::$_config['module_type']);
-            $router->add(self::$_config['route']);
             $pathInfo = $this->getPathInfo();
             $dispatchInfo = $router->match($pathInfo);
             $_GET = array_merge($_GET, $dispatchInfo);
