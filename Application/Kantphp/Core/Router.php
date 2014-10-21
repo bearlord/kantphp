@@ -8,116 +8,172 @@
  */
 !defined('IN_KANT') && exit('Access Denied');
 
-class Router extends Base {
+class KantRouter extends Router {
+    
+}
 
-    private static $_router;
-    //系统生成的参数
-    private $_param;
+class Router {
+
+    private static $_instance = null;
+    private $_rules = array();
     protected $request_uri;
     protected $script_name;
+    protected $_enableDynamicMatch = true;
+    protected $_dynamicRule = array(
+        'defaultController' => 'Index',
+        'defaultAction' => 'Index'
+    );
+    protected $get;
+    protected $post;
+    protected $request;
+
+    /**
+     * Module type
+     * 
+     * @var type 
+     */
+    protected $_moduleType = false;
 
     public function __construct() {
-        $this->cfg = $this->loadCfg('Config');
-    }
-
-    public static function getInstance() {
-        if (self::$_router == '') {
-            self::$_router = new self();
-        }
-        return self::$_router;
+        
     }
 
     /**
-     *
-     * Parse request_uri
-     *
+     * Singleton instance
+     * 
+     * @return array
      */
-    public function parse() {
-        foreach (array('REQUEST_URI', 'HTTP_X_REWRITE_URL', 'argv') as $var) {
-            if ($this->request_uri = $_SERVER[$var]) {
-                if ($var == 'argv') {
-                    $this->request_uri = $this->request_uri[0];
-                }
-                break;
-            }
+    public static function getInstance() {
+        if (null === self::$_instance) {
+            self::$_instance = new self();
         }
-        $this->request_uri = urldecode($this->request_uri == '//' ? '/' : $this->request_uri);
-        $this->script_name = $_SERVER['SCRIPT_NAME'];
-        $this->_recover();
+        return self::$_instance;
+    }
+
+    /**
+     * Set module type
+     * 
+     * @param type $var
+     */
+    public function setModuleType($var) {
+        $this->_moduleType = $var;
+    }
+
+    public function getModuleType() {
+        return $this->_moduleType;
+    }
+
+    /**
+     * Get rules
+     *
+     * @param string $regex
+     * @return array
+     */
+    public function rules($regex = null) {
+        if (null === $regex) {
+            return $this->_rules;
+        }
+        return isset($this->_rules[$regex]) ? $this->_rules[$regex] : null;
+    }
+
+    /**
+     * Add rule
+     *
+     * @param array $rule
+     * @param boolean $overwrite
+     */
+    public function add($rules, $overwrite = true) {
+        $rules = (array) $rules;
+        if ($overwrite) {
+            $this->_rules = $rules + $this->_rules;
+        } else {
+            $this->_rules += $rules;
+        }
+
         return $this;
     }
 
-    private function _recover() {
-        $this->_param();
-        if (empty($this->_param['route'])) {
-            if ($_GET) {
-                foreach ($_GET as $key => $val) {
-                    $this->get[$key] = $val;
-                }
-            }
-            if ($this->cfg['module'] === true) {
-                $this->get['module'] = !empty($this->get['module']) ? $this->get['module'] : $this->cfg['route']['module'];
-                $this->get['ctrl'] = !empty($this->get['ctrl']) ? $this->get['ctrl'] : $this->cfg['route']['ctrl'];
-                $this->get['act'] = !empty($this->get['act']) ? $this->get['act'] : $this->cfg['route']['act'];
-            } else {
-                $this->get['ctrl'] = !empty($this->get['ctrl']) ? $this->get['ctrl'] : $this->cfg['route']['ctrl'];
-                $this->get['act'] = !empty($this->get['act']) ? $this->get['act'] : $this->cfg['route']['act'];
-            }
-        } else {
-            if ($this->cfg['module'] === true) {
-                $this->get['module'] = !empty($this->_param['route'][0]) ? $this->_param['route'][0] : $this->cfg['route']['module'];
-                $this->get['ctrl'] = !empty($this->_param['route'][1]) ? $this->_param['route'][1] : $this->cfg['route']['ctrl'];
-                $this->get['act'] = !empty($this->_param['route'][2]) ? $this->_param['route'][2] : $this->cfg['route']['act'];
-                $param = array_slice($this->_param['route'], 3);
-                foreach ($param as $key => $val) {
-                    $arr = preg_split("/[,:=-]/", $val, 2);
-                    $this->get[$arr[0]] = isset($arr[1]) ? $arr[1] : '';
-                }
-            } else {
-                $this->get['ctrl'] = !empty($this->_param['route'][0]) ? $this->_param['route'][0] : $this->cfg['route']['ctrl'];
-                $this->get['act'] = !empty($this->_param['route'][1]) ? $this->_param['route'][1] : $this->cfg['route']['act'];
-                $param = array_slice($this->_param['route'], 2);
-                foreach ($param as $key => $val) {
-                    $arr = preg_split("/[,:=-]/", $val, 2);
-                    $this->get[$arr[0]] = isset($arr[1]) ? $arr[1] : '';
-                }
-            }
-            if (!empty($this->_param['query'])) {
-                foreach ($this->_param['query'] as $key => $val) {
-                    $arr = preg_split("/[,:=-]/", $val, 2);
-                    $this->get[$arr[0]] = isset($arr[1]) ? $arr[1] : '';
-                }
-            }
-            $_GET = $this->get();
-        }
-        $this->post = Input::addslashes($_POST);
-        $this->request = $_REQUEST = array_merge($_POST, $_GET);
+    /**
+     * Remove rule
+     *
+     * @param string $regex
+     */
+    public function remove($regex) {
+        unset($this->_rules[$regex]);
+        return $this;
     }
 
-    private function _param() {
-        $_diff = $this->_getScriptName();
-        if (strpos($_diff, "index.php") !== false) {
-            return;
-        } elseif (strpos($_diff, "?") !== false) {
-            list ($route, $query) = explode("?", $_diff);
-            $this->_param['route'] = explode('/', $route);
-            $this->_param['query'] = preg_split("/[?&]/", $query);
-        } else {
-            $this->_param['route'] = explode("/", $_diff);
-        }
+    /**
+     * Enable or disable dynamic match
+     *
+     * @param boolean $flag
+     * @param array $opts
+     * @return Cola_Router
+     */
+    public function enableDynamicMatch($flag = true, $opts = array()) {
+        $this->_enableDynamicMatch = true;
+        $this->_dynamicRule = $opts + $this->_dynamicRule;
+        return $this;
     }
 
-    private function _getScriptName() {
-        $script_name = dirname($this->script_name);
-        $request_uri = $this->request_uri;
-        if ($script_name == '/') {
-            $diff = ltrim($request_uri, $script_name);
+    /**
+     * Match path
+     *
+     * @param string $path
+     * @return boolean
+     */
+    public function match($pathInfo = null) {
+        $pathInfo = trim($pathInfo, '/');
+        $tmp = explode('/', $pathInfo);
+        if ($this->getModuleType() == true) {
+            if ($module = current($tmp)) {
+                $dispatchInfo['module'] = ucfirst(current($tmp));
+            } else {
+                $dispatchInfo['module'] = $this->_rules['module'];
+            }
+            if ($controller = next($tmp)) {
+                $dispatchInfo['ctrl'] = ucfirst($controller);
+            } else {
+                $dispatchInfo['ctrl'] = $this->_rules['ctrl'];
+            }
         } else {
-            $diff = str_ireplace($script_name, '', $request_uri);
+            if ($controller = current($tmp)) {
+                $dispatchInfo['ctrl'] = ucfirst($controller);
+            } else {
+                $dispatchInfo['ctrl'] = $this->_rules['ctrl'];
+            }
         }
-        $diff = str_replace("." . $this->cfg['url_suffix'], '', $diff);
-        $diff = trim($diff, '/');
-        return $diff;
+        if ($action = next($tmp)) {
+            if (strpos($action, "?") !== false) {
+                $strpos = strpos($action, "?");
+                $action = substr($action, 0, $strpos);
+            }
+            $dispatchInfo['act'] = ucfirst($action);
+        } else {
+            $dispatchInfo['act'] = $this->_rules['act'];
+        }
+        $params = array();
+        while (false !== ($next = next($tmp))) {
+            $arr = preg_split("/[,:=-]/", $next, 2);
+
+            $dispatchInfo[$arr[0]] = urldecode($arr[1]);
+        }
+        return $dispatchInfo;
+    }
+
+    /**
+     * Dynamic Match
+     *
+     * @param string $pathInfo
+     * @return array $dispatchInfo
+     */
+    protected function _dynamicMatch($pathInfo) {
+        $dispatchInfo = array();
+        $tmp = explode('/', $pathInfo);
+        $params = '';
+        $dispatchInfo = array();
+//        KantRegistry::set('_params', $params);
+        return $dispatchInfo;
     }
 
     /**

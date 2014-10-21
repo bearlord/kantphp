@@ -18,6 +18,7 @@
 class BaseController extends Base {
 
     protected $view;
+    protected $dispatchInfo;
 
     public function initialize() {
         $this->_initView();
