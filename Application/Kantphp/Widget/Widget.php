@@ -14,7 +14,8 @@ abstract class Widget extends Base {
         $templateFile = strtolower($templateFile);
         ob_start();
         ob_implicit_flush(0);
-        $module = isset($this->get['module']) ? ucfirst($this->get['module']) : '';
+        $dispatchInfo = KantRegistry::get('dispatchInfo');
+        $module = isset($dispatchInfo['module']) ? ucfirst($dispatchInfo['module']) : '';
         if ($module) {
             $filepath = APP_PATH . 'Module' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'Widget' . DIRECTORY_SEPARATOR . 'Tpl' . DIRECTORY_SEPARATOR . $templateFile . '.php';
         } else {

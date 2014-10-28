@@ -21,11 +21,11 @@ class BaseController extends Base {
     protected $dispatchInfo;
 
     public function initialize() {
-        $this->_initView();
+        $this->initView();
         return $this;
     }
 
-    private function _initView() {
+    protected function initView() {
         if ($this->view == '') {
             $this->view = new View();
         }

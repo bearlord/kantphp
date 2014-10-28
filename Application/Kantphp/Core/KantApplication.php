@@ -174,8 +174,11 @@ final class Kant extends Base {
                 $classes[$key] = new $classname;
                 return $classes[$key];
             } else {
-                throw new KantException(sprintf("No controller exists:%s", $classname));
-                $this->redirect($this->lang('no_controller'));
+                if (self::$_config['debug']) {
+                    throw new KantException(sprintf("No controller exists:%s", $classname));
+                } else {
+                    $this->redirect($this->lang('no_controller'));
+                }
             }
         } else {
             if (self::$_config['debug']) {
@@ -291,25 +294,7 @@ final class Kant extends Base {
         }
         return $this->_router;
     }
-
-    /**
-     * Register
-     *
-     * @param string $name
-     * @param mixed $value
-     * @return mixed
-     */
-    public static function reg($name = null, &$value = null, $default = null) {
-        if (null === $name) {
-            return self::$_reg;
-        }
-        if (null === $value) {
-            return isset(self::$_reg[$name]) ? self::$_reg[$name] : $default;
-        }
-        self::$_reg[$name] = $value;
-        return self::$_instance;
-    }
-
+    
     /**
      * Set path info
      *
@@ -318,8 +303,9 @@ final class Kant extends Base {
      */
     public function setPathInfo($pathinfo = null) {
         if (null === $pathinfo) {
-            if (self::$_config['path_info_repair'] != false) {
+            if (self::$_config['path_info_repair'] == false) {
                 $pathinfo = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '';
+                $pathinfo = str_replace("." . self::$_config['url_suffix'], '', $pathinfo);
             } else {
                 foreach (array('REQUEST_URI', 'HTTP_X_REWRITE_URL', 'argv') as $var) {
                     if ($requestUri = $_SERVER[$var]) {
@@ -329,7 +315,7 @@ final class Kant extends Base {
                         break;
                     }
                 }
-                $requestUri = str_replace("." . self::$_config['url_suffix'], '',strtolower(ltrim($requestUri, '/')));
+                $requestUri = str_replace("." . self::$_config['url_suffix'], '', strtolower(ltrim($requestUri, '/')));
                 $scriptName = strtolower(ltrim(dirname($_SERVER['SCRIPT_NAME']), '/'));
                 $pathinfo = str_replace($scriptName, '', $requestUri);
             }
@@ -361,6 +347,8 @@ final class Kant extends Base {
         if (null === $dispatchInfo) {
             $router = $this->getRouter();
             $router->setModuleType(self::$_config['module_type']);
+            $router->setUrlSuffix(self::$_config['url_suffix']);
+            $router->add(self::$_config['route']);
             $pathInfo = $this->getPathInfo();
             $dispatchInfo = $router->match($pathInfo);
             $_GET = array_merge($_GET, $dispatchInfo);

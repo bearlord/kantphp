@@ -31,11 +31,6 @@ class Base {
     protected $sessionAdapter;
 
     public function __construct() {
-//        $routerObj = Router::getInstance()->parse();
-//        $this->get = $routerObj->get();
-//        $this->post = $routerObj->post();
-//        $this->route = $routerObj->route();
-//        $this->request = $routerObj->request();
         $this->debug = $this->debugStatus();
         $this->loadCache();
         $this->loadCookie();
@@ -418,7 +413,8 @@ class Base {
     }
 
     public function widget($widgetname, $method, $data = array(), $return = false) {
-        $module = isset($this->get['module']) ? ucfirst($this->get['module']) : '';
+        $dispatchInfo = KantRegistry::get('dispatchInfo');
+        $module = isset($dispatchInfo['module']) ? ucfirst($dispatchInfo['module']) : '';
         $classname = ucfirst($widgetname) . 'Widget';
         if ($module) {
             $filepath = APP_PATH . 'Module' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'Widget' . DIRECTORY_SEPARATOR . $classname . '.php';
