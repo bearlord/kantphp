@@ -323,6 +323,11 @@ class Base {
      * @return string
      */
     public function url($url = '', $vars = '', $suffix = true) {
+        $originalparams = array();
+        $this->cfg = $this->loadCfg('Config');
+        if (strpos($url, $this->cfg['url_suffix']) !== false) {
+            $url = rtrim($url, $this->cfg['url_suffix']);
+        }
         $info = parse_url($url);
         if (isset($info['fragment'])) {
             $anchor = $info['fragment'];
@@ -343,11 +348,10 @@ class Base {
             parse_str($info['query'], $params);
             $vars = array_merge($params, $vars);
         }
-        $this->cfg = $this->loadCfg('Config');
+        
         $depr = "/";
         $url = trim($url, $depr);
         $path = explode($depr, $url);
-
         if ($this->cfg['module_type'] === true) {
             $var['module'] = $path[0];
             $var['ctrl'] = !empty($path[1]) ? $path[1] : $this->cfg['route']['ctrl'];
@@ -356,7 +360,7 @@ class Base {
                 $restpath = array_slice($path, 3);
                 foreach ($restpath as $key => $val) {
                     $arr = preg_split("/[,:=-]/", $val, 2);
-                    $vars[$arr[0]] = isset($arr[1]) ? $arr[1] : '';
+                    $originalparams[$arr[0]] = isset($arr[1]) ? $arr[1] : '';
                 }
             }
         } else {
@@ -366,11 +370,12 @@ class Base {
                 $restpath = array_slice($path, 2);
                 foreach ($restpath as $key => $val) {
                     $arr = preg_split("/[,:=-]/", $val, 2);
-                    $vars[$arr[0]] = isset($arr[1]) ? $arr[1] : '';
+                    $originalparams[$arr[0]] = isset($arr[1]) ? $arr[1] : '';
                 }
             }
         }
         $url = APP_URL . implode($depr, ($var));
+        $vars = array_merge($originalparams, $vars);
         if (!empty($vars)) { // 添加参数
             foreach ($vars as $var => $val) {
                 if ('' !== trim($val)) {
@@ -387,7 +392,7 @@ class Base {
             }
             //if ($suffix && '/' != substr($url, -1)) {
             if ($suffix) {
-                $url .= '.' . ltrim($suffix, '.');
+                $url .= $suffix;
             }
         }
         if (isset($anchor)) {

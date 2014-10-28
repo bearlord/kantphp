@@ -12,6 +12,6 @@ return array(
         )
     ),
     'debug' => false,
-    'url_suffix' => 'html',
+    'url_suffix' => '.html',
 );
 

@@ -294,7 +294,7 @@ final class Kant extends Base {
         }
         return $this->_router;
     }
-    
+
     /**
      * Set path info
      *
@@ -305,7 +305,7 @@ final class Kant extends Base {
         if (null === $pathinfo) {
             if (self::$_config['path_info_repair'] == false) {
                 $pathinfo = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '';
-                $pathinfo = str_replace("." . self::$_config['url_suffix'], '', $pathinfo);
+                $pathinfo = str_replace(self::$_config['url_suffix'], '', $pathinfo);
             } else {
                 foreach (array('REQUEST_URI', 'HTTP_X_REWRITE_URL', 'argv') as $var) {
                     if ($requestUri = $_SERVER[$var]) {
@@ -315,12 +315,12 @@ final class Kant extends Base {
                         break;
                     }
                 }
-                $requestUri = str_replace("." . self::$_config['url_suffix'], '', strtolower(ltrim($requestUri, '/')));
+                $requestUri = str_replace(self::$_config['url_suffix'], '', strtolower(ltrim($requestUri, '/')));
                 $scriptName = strtolower(ltrim(dirname($_SERVER['SCRIPT_NAME']), '/'));
                 $pathinfo = str_replace($scriptName, '', $requestUri);
             }
-        }
-
+        } 
+        
         $this->_pathInfo = $pathinfo;
         return $this;
     }

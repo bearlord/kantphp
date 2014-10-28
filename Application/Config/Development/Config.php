@@ -9,7 +9,7 @@ return array(
             'GET' => array()
         )
     ),
-    'url_suffix' => 'html',
+    'url_suffix' => '.html',
     //'redirect_tpl' => 'dispatch/redirect',
     'module' => false,
     'system' => array(

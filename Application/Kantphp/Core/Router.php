@@ -200,43 +200,4 @@ class Router {
         return $dispatchInfo;
     }
 
-    /**
-     *  Get
-     * 
-     * @return
-     */
-    public function get() {
-        return Input::addslashes($this->get);
-    }
-
-    /**
-     * Post
-     * 
-     * @return type
-     */
-    public function post() {
-        return $this->post;
-    }
-
-    /**
-     * Request
-     * 
-     * @return type
-     */
-    public function request() {
-        return $this->request;
-    }
-
-    /**
-     * Route
-     */
-    public function route() {
-        if (!empty($this->get['module'])) {
-            $route = $this->get['module'] . '/' . $this->get['ctrl'] . '/' . $this->get['act'];
-        } else {
-            $route = $this->get['ctrl'] . '/' . $this->get['act'];
-        }
-        return $route;
-    }
-
 }
