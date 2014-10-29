@@ -154,18 +154,18 @@ class Router {
             if ($module = current($tmp)) {
                 $dispatchInfo['module'] = ucfirst(current($tmp));
             } else {
-                $dispatchInfo['module'] = $this->_rules['module'];
+                $dispatchInfo['module'] = ucfirst($this->_rules['module']);
             }
             if ($controller = next($tmp)) {
                 $dispatchInfo['ctrl'] = ucfirst($controller);
             } else {
-                $dispatchInfo['ctrl'] = $this->_rules['ctrl'];
+                $dispatchInfo['ctrl'] = ucfirst($this->_rules['ctrl']);
             }
         } else {
             if ($controller = current($tmp)) {
                 $dispatchInfo['ctrl'] = ucfirst($controller);
             } else {
-                $dispatchInfo['ctrl'] = $this->_rules['ctrl'];
+                $dispatchInfo['ctrl'] = ucfirst($this->_rules['ctrl']);
             }
         }
         if ($action = next($tmp)) {

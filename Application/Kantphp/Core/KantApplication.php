@@ -154,7 +154,7 @@ final class Kant extends Base {
     protected function dispatchController() {
         static $classes = array();
         $module = isset($this->_dispatchInfo['module']) ? $this->_dispatchInfo['module'] : '';
-        $classname = ucfirst($this->_dispatchInfo['ctrl']) . 'Controller';
+        $classname = $this->_dispatchInfo['ctrl'] . 'Controller';
         if ($module) {
             $filepath = APP_PATH . 'Module' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'Controller' . DIRECTORY_SEPARATOR . $classname . '.php';
         } else {
