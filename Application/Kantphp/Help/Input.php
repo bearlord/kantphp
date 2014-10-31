@@ -49,13 +49,8 @@ class Input {
                     break;
                 case 'files': $input = & $_FILES;
                     break;
-                case 'call': $input = 'call';
-                    break;
-                case 'config': $input = C();
-                    break;
-                case 'lang': $input = L();
-                    break;
-                default:return NULL;
+                default:
+                    return NULL;
             }
             if ('call' === $input) {
                 // 呼叫其他方式的输入数据

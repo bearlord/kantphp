@@ -9,42 +9,6 @@
 
 /**
  *
- * Get
- *
- * @param var miexed
- * @param default mixed
- * @param convert_fun string
- */
-function get($var, $default = null, $convert_fun = '') {
-    if (isset($_GET[$var])) {
-        if ($convert_fun)
-            return $convert_fun($_GET[$var]);
-        return $_GET[$var];
-    }
-    return $default;
-}
-
-/**
- *
- * Post
- *
- * @param var mixed
- *
- * @param default mixed
- * @param convert_fun string
- */
-function post($var, $default = null, $convert_fun = '') {
-    if (isset($_POST[$var])) {
-        if ($convert_fun) {
-            return $convert_fun($_POST[$var]);
-        }
-        return $_POST[$var];
-    }
-    return $default;
-}
-
-/**
- *
  * Get client IP
  *
  * @return string
@@ -69,22 +33,6 @@ function get_client_ip() {
     return $onlineip;
 }
 
-/**
- *
- * parse URL
- *
- * @param pathinfo string
- * @return string
- */
-function url($pathinfo) {
-    if (strtolower(substr($pathinfo, 0, 4)) == 'http') {
-        return $pathinfo;
-    } else {
-        $pathinfo = rtrim($pathinfo);
-        return APP_URL . $pathinfo . '/';
-    }
-}
-
 function random($bit = 4, $type = "mix") {
     $code = '';
     if (in_array($type, array('letter', 'digit', 'mix')) == false) {
@@ -103,57 +51,70 @@ function random($bit = 4, $type = "mix") {
     return $code;
 }
 
-function remove_xss($val) {
-    // remove all non-printable characters. CR(0a) and LF(0b) and TAB(9) are allowed
-    // this prevents some character re-spacing such as <java\0script>
-    // note that you have to handle splits with \n, \r, and \t later since they *are* allowed in some inputs
-    $val = preg_replace('/([\x00-\x08,\x0b-\x0c,\x0e-\x19])/', '', $val);
-
-    // straight replacements, the user should never need these since they're normal characters
-    // this prevents like <IMG SRC=@avascript:alert('XSS')>
-    $search = 'abcdefghijklmnopqrstuvwxyz';
-    $search .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $search .= '1234567890!@#$%^&*()';
-    $search .= '~`";:?+/={}[]-_|\'\\';
-    for ($i = 0; $i < strlen($search); $i++) {
-        // ;? matches the ;, which is optional
-        // 0{0,7} matches any padded zeros, which are optional and go up to 8 chars
-        // @ @ search for the hex values
-        $val = preg_replace('/(&#[xX]0{0,8}' . dechex(ord($search[$i])) . ';?)/i', $search[$i], $val); // with a ;
-        // @ @ 0{0,7} matches '0' zero to seven times
-        $val = preg_replace('/(&#0{0,8}' . ord($search[$i]) . ';?)/', $search[$i], $val); // with a ;
-    }
-
-    // now the only remaining whitespace attacks are \t, \n, and \r
-    $ra1 = array('javascript', 'vbscript', 'expression', 'applet', 'meta', 'xml', 'blink', 'link', 'style', 'script', 'embed', 'object', 'iframe', 'frame', 'frameset', 'ilayer', 'layer', 'bgsound', 'title', 'base');
-    $ra2 = array('onabort', 'onactivate', 'onafterprint', 'onafterupdate', 'onbeforeactivate', 'onbeforecopy', 'onbeforecut', 'onbeforedeactivate', 'onbeforeeditfocus', 'onbeforepaste', 'onbeforeprint', 'onbeforeunload', 'onbeforeupdate', 'onblur', 'onbounce', 'oncellchange', 'onchange', 'onclick', 'oncontextmenu', 'oncontrolselect', 'oncopy', 'oncut', 'ondataavailable', 'ondatasetchanged', 'ondatasetcomplete', 'ondblclick', 'ondeactivate', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondragstart', 'ondrop', 'onerror', 'onerrorupdate', 'onfilterchange', 'onfinish', 'onfocus', 'onfocusin', 'onfocusout', 'onhelp', 'onkeydown', 'onkeypress', 'onkeyup', 'onlayoutcomplete', 'onload', 'onlosecapture', 'onmousedown', 'onmouseenter', 'onmouseleave', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onmousewheel', 'onmove', 'onmoveend', 'onmovestart', 'onpaste', 'onpropertychange', 'onreadystatechange', 'onreset', 'onresize', 'onresizeend', 'onresizestart', 'onrowenter', 'onrowexit', 'onrowsdelete', 'onrowsinserted', 'onscroll', 'onselect', 'onselectionchange', 'onselectstart', 'onstart', 'onstop', 'onsubmit', 'onunload');
-    $ra = array_merge($ra1, $ra2);
-
-    $found = true; // keep replacing as long as the previous round replaced something
-    while ($found == true) {
-        $val_before = $val;
-        for ($i = 0; $i < sizeof($ra); $i++) {
-            $pattern = '/';
-            for ($j = 0; $j < strlen($ra[$i]); $j++) {
-                if ($j > 0) {
-                    $pattern .= '(';
-                    $pattern .= '(&#[xX]0{0,8}([9ab]);)';
-                    $pattern .= '|';
-                    $pattern .= '|(&#0{0,8}([9|10|13]);)';
-                    $pattern .= ')*';
-                }
-                $pattern .= $ra[$i][$j];
+function strcut($string, $length, $dot = '...') {
+    $strlen = strlen($string);
+    if ($strlen <= $length)
+        return $string;
+    $string = str_replace(array(' ', '&nbsp;', '&amp;', '&quot;', '&#039;', '&ldquo;', '&rdquo;', '&mdash;', '&lt;', '&gt;', '&middot;', '&hellip;'), array('∵', ' ', '&', '"', "'", '“', '”', '—', '<', '>', '·', '…'), $string);
+    $strcut = '';
+    if (strtolower(CHARSET) == 'utf-8') {
+        $length = intval($length - strlen($dot) - $length / 3);
+        $n = $tn = $noc = 0;
+        while ($n < strlen($string)) {
+            $t = ord($string[$n]);
+            if ($t == 9 || $t == 10 || (32 <= $t && $t <= 126)) {
+                $tn = 1;
+                $n++;
+                $noc++;
+            } elseif (194 <= $t && $t <= 223) {
+                $tn = 2;
+                $n += 2;
+                $noc += 2;
+            } elseif (224 <= $t && $t <= 239) {
+                $tn = 3;
+                $n += 3;
+                $noc += 2;
+            } elseif (240 <= $t && $t <= 247) {
+                $tn = 4;
+                $n += 4;
+                $noc += 2;
+            } elseif (248 <= $t && $t <= 251) {
+                $tn = 5;
+                $n += 5;
+                $noc += 2;
+            } elseif ($t == 252 || $t == 253) {
+                $tn = 6;
+                $n += 6;
+                $noc += 2;
+            } else {
+                $n++;
             }
-            $pattern .= '/i';
-            $replacement = substr($ra[$i], 0, 2) . '<x>' . substr($ra[$i], 2); // add in <> to nerf the tag
-            $val = preg_replace($pattern, $replacement, $val); // filter out the hex tags
-            if ($val_before == $val) {
-                // no replacements were made, so exit the loop
-                $found = false;
+            if ($noc >= $length) {
+                break;
             }
         }
+        if ($noc > $length) {
+            $n -= $tn;
+        }
+        $strcut = substr($string, 0, $n);
+        $strcut = str_replace(array('∵', '&', '"', "'", '“', '”', '—', '<', '>', '·', '…'), array(' ', '&amp;', '&quot;', '&#039;', '&ldquo;', '&rdquo;', '&mdash;', '&lt;', '&gt;', '&middot;', '&hellip;'), $strcut);
+    } else {
+        $dotlen = strlen($dot);
+        $maxi = $length - $dotlen - 1;
+        $current_str = '';
+        $search_arr = array('&', ' ', '"', "'", '“', '”', '—', '<', '>', '·', '…', '∵');
+        $replace_arr = array('&amp;', '&nbsp;', '&quot;', '&#039;', '&ldquo;', '&rdquo;', '&mdash;', '&lt;', '&gt;', '&middot;', '&hellip;', ' ');
+        $search_flip = array_flip($search_arr);
+        for ($i = 0; $i < $maxi; $i++) {
+            $current_str = ord($string[$i]) > 127 ? $string[$i] . $string[++$i] : $string[$i];
+            if (in_array($current_str, $search_arr)) {
+                $key = $search_flip[$current_str];
+                $current_str = str_replace($search_arr[$key], $replace_arr[$key], $current_str);
+            }
+            $strcut .= $current_str;
+        }
     }
-    return $val;
+    return $strcut . $dot;
 }
 
 ?>
