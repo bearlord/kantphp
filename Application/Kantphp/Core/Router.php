@@ -16,13 +16,8 @@ class Router {
 
     private static $_instance = null;
     private $_rules = array();
-    protected $request_uri;
-    protected $script_name;
     protected $_enableDynamicMatch = true;
-    protected $_dynamicRule = array(
-        'defaultController' => 'Index',
-        'defaultAction' => 'Index'
-    );
+    protected $_dynamicRule = array();
     protected $get;
     protected $post;
     protected $request;
@@ -149,40 +144,20 @@ class Router {
      */
     public function match($pathInfo = null) {
         $pathInfo = trim($pathInfo, '/');
-        $tmp = explode('/', $pathInfo);
-        if ($this->getModuleType() == true) {
-            if ($module = current($tmp)) {
-                $dispatchInfo['module'] = ucfirst(current($tmp));
-            } else {
-                $dispatchInfo['module'] = ucfirst($this->_rules['module']);
-            }
-            if ($controller = next($tmp)) {
-                $dispatchInfo['ctrl'] = ucfirst($controller);
-            } else {
-                $dispatchInfo['ctrl'] = ucfirst($this->_rules['ctrl']);
-            }
-        } else {
-            if ($controller = current($tmp)) {
-                $dispatchInfo['ctrl'] = ucfirst($controller);
-            } else {
-                $dispatchInfo['ctrl'] = ucfirst($this->_rules['ctrl']);
+        if (!empty($this->_rules)) {
+            $pathInfo = str_replace("$1", 4, $pathInfo);
+            foreach ($this->_rules as $regex => $rule) {
+                $res = preg_match($regex, $pathInfo, $matches);
+                if ($matches) {
+                    $pathInfo = $this->_rules[$regex];
+                    for ($i = 1; $i < count($matches); $i++) {
+                        $pathInfo = str_replace("$" . $i, $matches[$i], $pathInfo);
+                    }
+                }
+                break;
             }
         }
-        if ($action = next($tmp)) {
-            if (strpos($action, ".") !== false) {
-                $action = substr($action, 0, strpos($action, "."));
-            }
-            $dispatchInfo['act'] = ucfirst($action);
-        } else {
-            $dispatchInfo['act'] = $this->_rules['act'];
-        }
-        while (false !== ($next = next($tmp))) {
-            $arr = preg_split("/[,:=-]/", $next, 2);
-            if (!empty($arr[1])) {
-                $dispatchInfo[$arr[0]] = urldecode($arr[1]);
-            }
-        }
-        return $dispatchInfo;
+        return $this->_dynamicMatch($pathInfo);
     }
 
     /**
@@ -192,11 +167,39 @@ class Router {
      * @return array $dispatchInfo
      */
     protected function _dynamicMatch($pathInfo) {
-        $dispatchInfo = array();
         $tmp = explode('/', $pathInfo);
-        $params = '';
-        $dispatchInfo = array();
-//        KantRegistry::set('_params', $params);
+        if ($this->getModuleType() == true) {
+            if ($module = current($tmp)) {
+                $dispatchInfo['module'] = ucfirst(current($tmp));
+            } else {
+                $dispatchInfo['module'] = ucfirst($this->_dynamicRule['module']);
+            }
+            if ($controller = next($tmp)) {
+                $dispatchInfo['ctrl'] = ucfirst($controller);
+            } else {
+                $dispatchInfo['ctrl'] = ucfirst($this->_dynamicRule['ctrl']);
+            }
+        } else {
+            if ($controller = current($tmp)) {
+                $dispatchInfo['ctrl'] = ucfirst($controller);
+            } else {
+                $dispatchInfo['ctrl'] = ucfirst($this->_dynamicRule['ctrl']);
+            }
+        }
+        if ($action = next($tmp)) {
+            if (strpos($action, ".") !== false) {
+                $action = substr($action, 0, strpos($action, "."));
+            }
+            $dispatchInfo['act'] = ucfirst($action);
+        } else {
+            $dispatchInfo['act'] = $this->_dynamicRule['act'];
+        }
+        while (false !== ($next = next($tmp))) {
+            $arr = preg_split("/[,:=-]/", $next, 2);
+            if (!empty($arr[1])) {
+                $dispatchInfo[$arr[0]] = urldecode($arr[1]);
+            }
+        }
         return $dispatchInfo;
     }
 

@@ -11,6 +11,7 @@ return array(
             'GET' => array()
         )
     ),
+    'route_rules' => array(),
     'debug' => false,
     'url_suffix' => '.html',
 );

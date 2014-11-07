@@ -121,7 +121,6 @@ final class Kant extends Base {
      * 
      */
     public function boot() {
-//        $this->_initialize();
         if (!$this->getDispatchInfo()) {
             throw new KantException('No dispatch info found');
         }
@@ -348,7 +347,8 @@ final class Kant extends Base {
             $router = $this->getRouter();
             $router->setModuleType(self::$_config['module_type']);
             $router->setUrlSuffix(self::$_config['url_suffix']);
-            $router->add(self::$_config['route']);
+            $router->add(self::$_config['route_rules']);
+            $router->enableDynamicMatch(true, self::$_config['route']);
             $pathInfo = $this->getPathInfo();
             $dispatchInfo = $router->match($pathInfo);
             $_GET = array_merge($_GET, $dispatchInfo);
