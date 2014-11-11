@@ -81,7 +81,7 @@ class View extends Base {
             return;
         }
         list($ctrl, $act) = explode("/", strtolower($file));
-        $tpldir = $this->_getTplDir();
+        $tpldir = $this->getTplDir();
         $tplfile = $tpldir . $ctrl . DIRECTORY_SEPARATOR . $act . '.php';
         if (!file_exists($tplfile)) {
             if ($this->debug) {
@@ -127,12 +127,10 @@ class View extends Base {
      */
     protected function getTplDir($module = '') {
         if ($module == '') {
-            $module = isset($this->dispatchInfo['module']) ? ucfirst($this->dispatchInfo['module']) : '';
-        } else {
-            $module = ucfirst($module);
-        }
+            $module = isset($this->dispatchInfo['module']) ? strtolower($this->dispatchInfo['module']) : '';
+        } 
         if ($module) {
-            $tpldir = APP_PATH . 'Module' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'View' . DIRECTORY_SEPARATOR . $this->theme . DIRECTORY_SEPARATOR;
+            $tpldir = TPL_PATH . $this->theme . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR;
         } else {
             $tpldir = TPL_PATH . $this->theme . DIRECTORY_SEPARATOR;
         }
