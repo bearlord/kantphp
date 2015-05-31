@@ -167,7 +167,7 @@ final class Kant extends Base {
             $controller = $this->dispatchController('empty');
             if (empty($controller)) {
                 if (self::$_config['debug']) {
-                    throw new KantException(sprintf("No controller exists:%s", cfirst($this->_dispatchInfo['ctrl']) . 'Controller'));
+                    throw new KantException(sprintf("No controller exists:%s", ucfirst($this->_dispatchInfo['ctrl']) . 'Controller'));
                 } else {
                     $this->redirect($this->lang('no_controller'));
                 }
