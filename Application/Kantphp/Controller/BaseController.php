@@ -20,16 +20,41 @@ class BaseController extends Base {
     protected $view;
     protected $dispatchInfo;
 
-    public function initialize() {
+    /**
+     * Construct
+     */
+    public function __construct() {
+        parent::__construct();
         $this->initView();
-        return $this;
     }
 
+    /**
+     * initView
+     * 
+     * @return type
+     */
     protected function initView() {
         if ($this->view == '') {
             $this->view = new View();
         }
         return $this->view;
+    }
+
+    public function __call($method, $args) {
+        $dispatchInfo = KantRegistry::get('dispatchInfo');
+        if (0 === strcasecmp($method, strtolower($dispatchInfo['act']) . "Action")) {
+            if (method_exists($this, '_empty')) {
+                // 如果定义了_empty操作 则调用
+                $this->_empty($method, $args);
+            } elseif (file_exists($this->view->parseTemplate())) {
+                // 检查是否存在默认模版 如果有直接输出模版
+                $this->display();
+            } else {
+                throw new KantException(sprintf("No action exists:%s", cfirst($dispatchInfo['act']) . 'Action'));
+            }
+        } else {
+            throw new KantException("Method not exists");
+        }
     }
 
 }

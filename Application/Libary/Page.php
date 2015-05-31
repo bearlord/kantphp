@@ -19,11 +19,18 @@ class Page extends Base {
     // 分页栏每页显示的页数
     protected $rollPage;
     // 分页显示定制
-    public $config = array('header' => 'Results', 'prev' => 'Preview', 'next' => 'Next', 'first' => 'First', 'last' => 'Last', 'page' => '', 'theme' => ' %totalRow% %header% %nowPage%/%totalPage% Pages %upPage% %downPage% %first%  %prePage%  %linkPage%  %nextPage% %end%');
+    public $config = array('preview' => 'Preview', 'next' => 'Next');
+    //处理情况 Ajax分页 Html分页(静态化时) 普通get方式 
+    protected $method = 'default';
+    //ajax分页时函数
+    protected $ajaxFunction = 'ajaxpage';
 
-    const PAGE_ROLLPAGE = 8; // 分页显示页数
-    const PAGE_LISTROWS = 20; // 分页每页显示记录数
-    const VAR_PAGE = 'page'; // 默认分页跳转变量
+    // 分页显示页数
+    const PAGE_ROLLPAGE = 8;
+    // 分页每页显示记录数
+    const PAGE_LISTROWS = 20;
+    // 默认分页跳转变量
+    const VAR_PAGE = 'page';
 
     /**
       +----------------------------------------------------------
@@ -36,7 +43,6 @@ class Page extends Base {
      * @param array $parameter  分页跳转的参数
       +----------------------------------------------------------
      */
-
     public function __construct($totalRows, $listRows, $parameter = '') {
         parent::__construct();
         $this->totalRows = $totalRows;
@@ -52,6 +58,11 @@ class Page extends Base {
         $this->firstRow = $this->listRows * ($this->nowPage - 1);
     }
 
+    /**
+     * 
+     * @param type $name
+     * @param type $value
+     */
     public function setConfig($name, $value) {
         if (isset($this->config[$name])) {
             $this->config[$name] = $value;
@@ -59,113 +70,134 @@ class Page extends Base {
     }
 
     /**
-      +----------------------------------------------------------
-     * 分页显示输出
-      +----------------------------------------------------------
-     * @access public
-      +----------------------------------------------------------
+     * 
+     * @param type $name
+     * @param type $value
      */
-    public function show($onclick = '') {
-        if ($onclick) {
-            $onclick = ' onclick="return ' . $onclick . '";';
-        }
-        if (0 == $this->totalRows)
-            return '';
-        $p = 'page';
-        $nowCoolPage = ceil($this->nowPage / $this->rollPage);
-        $url = $this->pageUrl();
-        //上下翻页字符串
-        $upRow = $this->nowPage - 1;
-        $downRow = $this->nowPage + 1;
-        if ($upRow > 0) {
-            $upPage = "<a href='" . $this->pageUrl($upRow) . "' $onclick>" . $this->config['prev'] . "</a>";
-        } else {
-            $upPage = "";
-        }
-
-        if ($downRow <= $this->totalPages) {
-            $downPage = "<a href='" . $this->pageUrl($downRow) . "' $onclick>" . $this->config['next'] . "</a>";
-        } else {
-            $downPage = "";
-        }
-        // << < > >>
-        if ($nowCoolPage == 1) {
-            $theFirst = "";
-            $prePage = "";
-        } else {
-            $preRow = $this->nowPage - $this->rollPage;
-            $prePage = "<a href='" . $this->pageUrl($preRow) . "'>" . $this->config['prev'] . $this->rollPage . $this->config['page'] . "</a>";
-            $theFirst = "<a href='" . $this->pageUrl(1) . "' >" . $this->config['first'] . "</a>";
-        }
-        if ($nowCoolPage == $this->coolPages) {
-            $nextPage = "";
-            $theEnd = "";
-        } else {
-            $nextRow = $this->nowPage + $this->rollPage;
-            $theEndRow = $this->totalPages;
-            $nextPage = "<a href='" . $this->pageUrl($nextRow) . "'>" . $this->config['next'] . $this->rollPage . $this->config['page'] . "</a>";
-            $theEnd = "<a href='" . $this->pageUrl($theEndRow) . "' >" . $this->config['last'] . "</a>";
-        }
-        // 1 2 3 4 5
-        $linkPage = "<span>";
-        $startRollPage = ($nowCoolPage - 1) * $this->rollPage;
-        $endRollPage = $nowCoolPage * $this->rollPage;
-
-        if ($this->nowPage - $startRollPage < 3) {
-            for ($i = 3; $i >= 1; $i--) {
-                $page = $this->nowPage - $i;
-                if ($page > 1) {
-                    $linkPage .= "<a href='" . $this->pageUrl($page) . "' $onclick>" . $page . "</a>&nbsp;";
-                }
-            }
-        }
-        for ($i = 1; $i <= $this->rollPage; $i++) {
-            $page = ($nowCoolPage - 1) * $this->rollPage + $i;
-            if ($page != $this->nowPage) {
-                if ($page <= $this->totalPages) {
-                    $linkPage .= "<a href='" . $this->pageUrl($page) . "' $onclick>" . $page . "</a>&nbsp;";
-                } else {
-                    break;
-                }
-            } else {
-                if ($this->totalPages != 1) {
-                    $linkPage .= "<a class='active' $onclick>" . $page . "</a>&nbsp;";
-                }
-            }
-        }
-        if ($endRollPage - $this->nowPage <= 3) {
-            for ($i = 1; $i <= 3; $i++) {
-                $page = $endRollPage + $i;
-                if ($page <= $this->totalPages) {
-                    $linkPage .= "<a href='" . $this->pageUrl($page) . "' $onclick>" . $page . "</a>&nbsp;";
-                }
-            }
-        }
-        $linkPage .= "</span>";
-        $pageStr = str_replace(
-                array('%header%', '%nowPage%', '%totalRow%', '%totalPage%', '%upPage%', '%downPage%', '%first%', '%prePage%', '%linkPage%', '%nextPage%', '%end%'), array($this->config['header'], $this->nowPage, $this->totalRows, $this->totalPages, $upPage, $downPage, $theFirst, $prePage, $linkPage, $nextPage, $theEnd), $this->config['theme']);
-        return $pageStr;
+    protected function setParameter($value) {
+        $this->parameter = $value;
     }
 
-    private function pageUrl($page = '') {
-        $m = $this->get['module'];
-        $c = $this->get['ctrl'];
-        $a = $this->get['act'];
-        $extend = array();
-        foreach ($this->get as $k => $v) {
-            if (in_array($k, array('module', 'ctrl', 'act', 'page')) == false) {
-                $extend[$k] = $v;
+    /**
+     * 
+     * @param type $var
+     */
+    public function setMethod($var) {
+        $this->method = $var;
+    }
+
+    /**
+     * 
+     * @param type $page
+     * @param type $text
+     * @return type
+     */
+    protected function getLink($page, $text) {
+        switch ($this->method) {
+            case 'ajax':
+                $parameter = '';
+                return '<li><a onclick="' . $this->ajaxFunction . '(\'' . $page . '\'' . $parameter . ')" href="javascript:void(0)">' . $text . '</a></li>';
+                break;
+            case 'html':
+                $url = str_replace('?', $page, $this->parameter);
+                return '<li><a  href="' . $page . '">' . $text . '</a></li>';
+                break;
+            default:
+                return '<li><a href="' . $this->getUrl($page) . '">' . $text . '</a></li>';
+                break;
+        }
+    }
+
+    /**
+     * 设置当前页面链接
+     */
+    protected function getUrl($page) {
+        $url = $_SERVER['REQUEST_URI'];
+        $parse = parse_url($url);
+        if (isset($parse['query'])) {
+            parse_str($parse['query'], $params);
+            $params[self::VAR_PAGE] = $page;
+            if (!empty($params)) {
+                $url = $parse['path'] . '?' . http_build_query($params);
+            } else {
+                $url = $parse['path'] . '?' . http_build_query($params);
+            }
+        } else {
+            $params[self::VAR_PAGE] = $page;
+            $url = $parse['path'] . '?' . http_build_query($params);
+        }
+        return $url;
+    }
+
+    /**
+     * 
+     */
+    public function show($theme = 'default') {
+        if (0 == $this->totalRows) {
+            return '';
+        }
+        $methodName = "show" . ucfirst($theme);
+        if (method_exists($this, $methodName)) {
+            $show = call_user_func(array($this, $methodName));
+            return $show;
+        }
+    }
+
+    /**
+     * 
+     */
+    protected function showDefault() {
+        $pageString = "";
+        $linkPage = "";
+        if ($this->totalPages <= 1) {
+            return false;
+        }
+        $linkPage .= $this->previewPage();
+        for ($i = 1; $i <= $this->totalPages; $i++) {
+            if ($i == $this->nowPage) {
+                $linkPage .= "<li class='active'><a>$i</a></li>";
+            } else {
+                if ($this->nowPage - $i >= 4 && $i != 1) {
+                    $linkPage .="<li>...</li>";
+                    $i = $this->nowPage - 3;
+                } else {
+                    if ($i >= $this->nowPage + 5 && $i != $this->totalPages) {
+                        $linkPage .="<li><span>...</span></li>";
+                        $i = $this->totalPages;
+                    }
+                    $linkPage .= $this->getLink($i, $i);
+                }
             }
         }
-        $MCA = !empty($m) ? sprintf("%s/%s/%s", $m, $c, $a) : sprintf("%s/%s", $c, $a);
-        if (!empty($page)) {
-            $_page = array(
-                'page' => $page
-            );
-            $extend = array_merge($extend, $_page);
-        };
-        $pageurl = $this->url($MCA, $extend);
-        return $pageurl;
+        $linkPage .= $this->nextPage();
+        $pageString = $linkPage;
+        return $pageString;
+    }
+
+    /**
+     * 
+     * @param type $name
+     * @return string
+     */
+    protected function previewPage($name = '') {
+        if ($name == '') {
+            $name = $this->config['preview'];
+        }
+        if ($this->totalRows != 0) {
+            return $this->getLink($this->nowPage - 1, $name);
+        }
+    }
+
+    /**
+     * 
+     */
+    protected function nextPage($name = '') {
+        if ($name == '') {
+            $name = $this->config['next'];
+        }
+        if ($this->nowPage < $this->totalPages) {
+            return $this->getLink($this->nowPage + 1, $name);
+        }
     }
 
 }

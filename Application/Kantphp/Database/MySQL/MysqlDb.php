@@ -87,6 +87,7 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
         }
         $where = $this->checkField($key) . ' REGEXP ' . $this->quote($value);
         $this->where .= ($this->where ? " $split " : '') . $where;
+        return $this;
     }
 
     /**

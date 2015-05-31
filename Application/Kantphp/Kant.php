@@ -29,6 +29,10 @@ define('MODULE_PATH', APP_PATH . 'Module' . DIRECTORY_SEPARATOR);
 define('LIB_PATH', APP_PATH . 'Libary' . DIRECTORY_SEPARATOR);
 //Public Path
 define('PUBLIC_PATH', dirname(APP_PATH) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR);
+//Log path
+if (!defined('LOG_PATH')) {
+    define('LOG_PATH', APP_PATH . 'Logs/');
+}
 //Web root
 if (!defined('APP_URL')) {
     define('APP_URL', substr(dirname($_SERVER['SCRIPT_NAME']), -1, 1) == '/' ? dirname($_SERVER['SCRIPT_NAME']) : dirname($_SERVER['SCRIPT_NAME']) . '/' );

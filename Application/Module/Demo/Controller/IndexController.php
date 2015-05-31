@@ -51,6 +51,10 @@ class IndexController extends BaseController {
         var_dump($this->post);
         $this->view->display();
     }
+    
+    public function _empty() {
+        echo 'empty';
+    }
 
 }
 

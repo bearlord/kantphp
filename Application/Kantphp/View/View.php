@@ -47,16 +47,28 @@ class View extends Base {
     }
 
     /**
-     *  
-     * @param string $file
-     * @throws RuntimeException
+     * Set theme
+     * 
+     * @param type $theme
+     * @return \View
      */
-    public function display($file = '') {
-        if (empty($file)) {
+    public function theme($theme) {
+        $this->theme = $theme;
+        return $this;
+    }
+
+    /**
+     * Parse template path
+     */
+    public function parseTemplate($template = '') {
+        if (is_file($template)) {
+            return $template;
+        }
+        if (empty($template)) {
             $ctrl = strtolower($this->dispatchInfo['ctrl']);
             $act = strtolower($this->dispatchInfo['act']);
         } else {
-            list($ctrl, $act) = explode("/", strtolower($file));
+            list($ctrl, $act) = explode("/", strtolower($template));
         }
         $tpldir = $this->getTplDir();
         $tplfile = $tpldir . $ctrl . DIRECTORY_SEPARATOR . $act . '.php';
@@ -67,29 +79,27 @@ class View extends Base {
                 $this->redirect($this->lang('system_error'), 'close');
             }
         }
+        return $tplfile;
+    }
+
+    /**
+     *  
+     * @param string $template
+     * @throws RuntimeException
+     */
+    public function display($template = '') {
+        $tplfile = $this->parseTemplate($template);
         include_once $tplfile;
     }
 
     /**
      * 
-     * @param type $file
+     * @param type $template
      * @return type
      * @throws RuntimeException
      */
-    public function fetch($file) {
-        if (empty($file)) {
-            return;
-        }
-        list($ctrl, $act) = explode("/", strtolower($file));
-        $tpldir = $this->getTplDir();
-        $tplfile = $tpldir . $ctrl . DIRECTORY_SEPARATOR . $act . '.php';
-        if (!file_exists($tplfile)) {
-            if ($this->debug) {
-                throw new RuntimeException(sprintf("No template: %s", $tplfile));
-            } else {
-                $this->redirect($this->lang('system_error'), 'close');
-            }
-        }
+    public function fetch($template) {
+        $tplfile = $this->parseTemplate($template);
         ob_start();
         ob_implicit_flush(0);
         include_once $tplfile;
@@ -99,16 +109,16 @@ class View extends Base {
 
     /**
      * 
-     * @param type $file
+     * @param type $template
      * @param type $module
      * @throws RuntimeException
      */
-    public function includeTpl($file, $module = '') {
-        if (empty($file)) {
+    public function includeTpl($template, $module = '') {
+        if (empty($template)) {
             $ctrl = strtolower($this->dispatchInfo['ctrl']);
             $act = strtolower($this->dispatchInfo['act']);
         } else {
-            list($ctrl, $act) = explode("/", strtolower($file));
+            list($ctrl, $act) = explode("/", strtolower($template));
         }
         $tpldir = $this->getTplDir($module);
         $tplfile = $tpldir . $ctrl . DIRECTORY_SEPARATOR . $act . '.php';
@@ -128,7 +138,7 @@ class View extends Base {
     protected function getTplDir($module = '') {
         if ($module == '') {
             $module = isset($this->dispatchInfo['module']) ? strtolower($this->dispatchInfo['module']) : '';
-        } 
+        }
         if ($module) {
             $tpldir = TPL_PATH . $this->theme . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR;
         } else {

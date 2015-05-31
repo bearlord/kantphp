@@ -5,11 +5,11 @@
  * 
  */
 return array(
-    //host model
+    //bae
     'default' => array(
         'hostname' => 'localhost',
         'port' => '3306',
-        'database' => 'mzQLTbRuzAqBRsxpaLti',
+        'database' => 'mzqltbruzaqbrsxpalti',
         'username' => 'root',
         'password' => 'root',
         'tablepre' => 'kant_',
@@ -19,7 +19,7 @@ return array(
         'persistent' => 0,
         'autoconnect' => 1
     ),
-    //openshift model
+    //default configuration
     'default-openshift' => array(
         'hostname' => getenv('OPENSHIFT_MYSQL_DB_HOST'),
         'port' => getenv('OPENSHIFT_MYSQL_DB_PORT'),
@@ -33,7 +33,6 @@ return array(
         'persistent' => 0,
         'autoconnect' => 1
     ),
-	//postgresql model
     'pgsql_demo' => array(
         'hostname' => 'localhost',
         'port' => '5432',
@@ -47,7 +46,6 @@ return array(
         'persistent' => 0,
         'autoconnect' => 1
     ),
-	//sqlite model
     'sqlite' => array(
         'hostname' => '',
         'port' => '',

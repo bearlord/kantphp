@@ -1,4 +1,3 @@
 <?php
+//global
 
-$LANG['welcome'] = 'Welcome To KantPHP';
-?>

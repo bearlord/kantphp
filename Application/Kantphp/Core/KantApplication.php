@@ -23,17 +23,19 @@ final class Kant extends Base {
         'View' => 'View/View.php',
         'Input' => 'Help/Input.php',
         'Cache' => 'Cache/Cache.php',
-        'Bootstrap' => '/Bootstrap/Bootstrap.php',
-        'Widget' => '/Widget/Widget.php',
         'Cookie' => 'Cookie/Cookie.php',
-        'Session' => 'Session/Session.php'
+        'Session' => 'Session/Session.php',
+        'Log' => 'Log/Log.php',
+        'Hook' => 'Hook/Hook.php',
+        'Bootstrap' => '/Bootstrap/Bootstrap.php',
+        'Widget' => '/Widget/Widget.php'
     );
     private static $_environment = 'Development';
 
     /**
      * Run time config
      *
-     * @var Cola_Config
+     * @var Kant_Config
      */
     public static $config;
 
@@ -54,7 +56,7 @@ final class Kant extends Base {
     /**
      * Router
      *
-     * @var Cola_Router
+     * @var Kant_Router
      */
     protected $_router;
 
@@ -117,10 +119,43 @@ final class Kant extends Base {
     }
 
     /**
-     * Bootstramp
+     * Boot
      * 
      */
     public function boot() {
+        static $tags;
+        static $apptags;
+        //default timezone
+        date_default_timezone_set(self::$_config['default_timezone']);
+        //logfile initialization
+        Log::init();
+        if (empty($tags)) {
+            $tags = include KANT_PATH . 'Config/Tags.php';
+            Hook::import($tags);
+        }
+        if (empty($apptags)) {
+            $apptags = include CFG_PATH . self::$_environment . DIRECTORY_SEPARATOR . 'Tags.php';
+            Hook::import($apptags);
+        }
+        $this->run();
+    }
+
+    /**
+     * Run
+     */
+    public function run() {
+        Hook::listen('app_begin');
+        $this->exec();
+        Hook::listen('app_end');
+    }
+
+    /**
+     * Execution
+     * 
+     * @throws KantException
+     * @throws ReflectionException
+     */
+    public function exec() {
         if (!$this->getDispatchInfo()) {
             throw new KantException('No dispatch info found');
         }
@@ -128,19 +163,29 @@ final class Kant extends Base {
         $this->bootstrapModule();
         $controller = $this->dispatchController();
         $action = isset($this->_dispatchInfo['act']) ? $this->_dispatchInfo['act'] . 'Action' : 'IndexAction';
-        if (method_exists($controller, $action)) {
-            if ($action{0} == '_') {
-                throw new Exception($this->lang('private_action'));
-            } else {
-//				call_user_func(array($ctrl, $act));
-                $controller->initialize()->$action();
+        if (!$controller) {
+            $controller = $this->dispatchController('empty');
+            if (empty($controller)) {
+                if (self::$_config['debug']) {
+                    throw new KantException(sprintf("No controller exists:%s", cfirst($this->_dispatchInfo['ctrl']) . 'Controller'));
+                } else {
+                    $this->redirect($this->lang('no_controller'));
+                }
             }
-        } else {
-            if (self::$_config['debug']) {
-                throw new Exception(sprintf($this->lang('no_action') . ":%s->%s", ucfirst($this->_dispatchInfo['ctrl']) . 'Controller', $this->_dispatchInfo['act']));
-            } else {
-                $this->redirect($this->lang('system_error'), 'close');
+        }
+        try {
+            if (!preg_match('/^[A-Za-z](\w)*$/', $action)) {
+                throw new ReflectionException();
             }
+            $method = new ReflectionMethod($controller, $action);
+            if ($method->isPublic() && !$method->isStatic()) {
+                $method->invoke($controller);
+            } else {
+                throw new ReflectionException();
+            }
+        } catch (ReflectionException $e) {
+            $method = new ReflectionMethod($controller, '__call');
+            $method->invokeArgs($controller, array($action, ''));
         }
     }
 
@@ -150,41 +195,30 @@ final class Kant extends Base {
      * @return boolean|array|\classname
      * @throws KantException
      */
-    protected function dispatchController() {
+    protected function dispatchController($controller = '') {
         static $classes = array();
         $module = isset($this->_dispatchInfo['module']) ? $this->_dispatchInfo['module'] : '';
-        $classname = $this->_dispatchInfo['ctrl'] . 'Controller';
-        if ($module) {
-            $filepath = APP_PATH . 'Module' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'Controller' . DIRECTORY_SEPARATOR . $classname . '.php';
+        if (empty($controller)) {
+            $controller = $this->_dispatchInfo['ctrl'] . 'Controller';
         } else {
-            $filepath = APP_PATH . 'Controller' . DIRECTORY_SEPARATOR . $classname . '.php';
+            $controller = ucfirst($controller) . "Controller";
         }
-        $key = md5($filepath . $classname);
+        if ($module) {
+            $filepath = APP_PATH . 'Module' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'Controller' . DIRECTORY_SEPARATOR . $controller . '.php';
+        } else {
+            $filepath = APP_PATH . 'Controller' . DIRECTORY_SEPARATOR . $controller . '.php';
+        }
+        $key = md5($filepath . $controller);
         if (isset($classes[$key])) {
             if (!empty($classes[$key])) {
                 return $classes[$key];
-            } else {
-                return true;
             }
         }
         if (file_exists($filepath)) {
             include $filepath;
-            if (class_exists($classname)) {
-                $classes[$key] = new $classname;
+            if (class_exists($controller)) {
+                $classes[$key] = new $controller;
                 return $classes[$key];
-            } else {
-                if (self::$_config['debug']) {
-                    throw new KantException(sprintf("No controller exists:%s", $classname));
-                } else {
-                    $this->redirect($this->lang('no_controller'));
-                }
-            }
-        } else {
-            if (self::$_config['debug']) {
-                throw new KantException(sprintf("No controller exists:%s", $classname));
-            } else {
-                $this->redirect($this->lang('system_error'), 'close');
-                return;
             }
         }
     }
@@ -271,7 +305,7 @@ final class Kant extends Base {
     /**
      * Set router
      *
-     * @param Cola_Router $router
+     * @param Kant_Router $router
      * @return Cola
      */
     public function setRouter($router = null) {
@@ -285,7 +319,7 @@ final class Kant extends Base {
     /**
      * Get router
      *
-     * @return Cola_Router
+     * @return Kant_Router
      */
     public function getRouter() {
         if (null === $this->_router) {
@@ -318,8 +352,8 @@ final class Kant extends Base {
                 $scriptName = strtolower(ltrim(dirname($_SERVER['SCRIPT_NAME']), '/'));
                 $pathinfo = str_replace($scriptName, '', $requestUri);
             }
-        } 
-        
+        }
+
         $this->_pathInfo = $pathinfo;
         return $this;
     }
