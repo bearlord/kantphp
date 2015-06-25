@@ -16,8 +16,26 @@
  */
 class View extends Base {
 
-    public $theme = 'default';
+    /**
+     * template theme
+     * 
+     * @var type 
+     */
+    protected $theme = 'default';
+    
+    /**
+     * dispatchInfo
+     * 
+     * @var type 
+     */
     protected $dispatchInfo;
+    
+    /**
+     * template variables
+     * 
+     * @var type 
+     */
+    protected $tvar = array();
 
     public function __construct() {
         parent::__construct();
@@ -44,6 +62,7 @@ class View extends Base {
      */
     public function __set($key, $value) {
         $this->$key = $value;
+        $this->tvar[$key] = $value;
     }
 
     /**
@@ -83,22 +102,26 @@ class View extends Base {
     }
 
     /**
-     *  
+     * Display template
+     * 
      * @param string $template
      * @throws RuntimeException
      */
     public function display($template = '') {
-        $tplfile = $this->parseTemplate($template);
-        include_once $tplfile;
+        $content = $this->fetch($template);
+        header("X-Powered-By:KantPHP");
+        echo $content;
     }
 
     /**
+     * Fetach template
      * 
      * @param type $template
      * @return type
      * @throws RuntimeException
      */
     public function fetch($template) {
+        extract($this->tvar, EXTR_OVERWRITE);
         $tplfile = $this->parseTemplate($template);
         ob_start();
         ob_implicit_flush(0);
@@ -108,6 +131,7 @@ class View extends Base {
     }
 
     /**
+     * Include template
      * 
      * @param type $template
      * @param type $module

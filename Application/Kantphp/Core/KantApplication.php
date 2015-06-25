@@ -128,7 +128,9 @@ final class Kant extends Base {
         //default timezone
         date_default_timezone_set(self::$_config['default_timezone']);
         //logfile initialization
-        Log::init();
+        Log::init(array(
+            'log_path' => LOG_PATH
+        ));
         if (empty($tags)) {
             $tags = include KANT_PATH . 'Config/Tags.php';
             Hook::import($tags);
