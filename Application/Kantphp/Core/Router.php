@@ -187,6 +187,9 @@ class Router {
             }
         }
         if ($action = next($tmp)) {
+            if (strpos($action, "?") !== false) {
+                $action = substr($action, 0, strpos($action, "?"));
+            }
             if (strpos($action, ".") !== false) {
                 $action = substr($action, 0, strpos($action, "."));
             }
@@ -195,9 +198,14 @@ class Router {
             $dispatchInfo['act'] = $this->_dynamicRule['act'];
         }
         while (false !== ($next = next($tmp))) {
-            $arr = preg_split("/[,:=-]/", $next, 2);
-            if (!empty($arr[1])) {
-                $dispatchInfo[$arr[0]] = urldecode($arr[1]);
+            $query = preg_split("/[?&]/", $next);
+            if (!empty($query)) {
+                foreach ($query as $key => $val) {
+                    $arr = preg_split("/[,:=-]/", $val, 2);
+                    if (!empty($arr[1])) {
+                        $dispatchInfo[$arr[0]] = urldecode($arr[1]);
+                    }
+                }
             }
         }
         return $dispatchInfo;
