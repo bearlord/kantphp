@@ -107,7 +107,7 @@ class View extends Base {
      * @param string $template
      * @throws RuntimeException
      */
-    public function display($template = '') {
+    public function display($template = '') { 
         $content = $this->fetch($template);
         header("X-Powered-By:KantPHP");
         echo $content;

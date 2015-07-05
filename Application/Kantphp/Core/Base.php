@@ -107,50 +107,6 @@ class Base {
 
     /**
      *
-     * Load config
-     * 
-     * @param string $file
-     * @param string $key
-     * @param string $default
-     * @param boolean $reload
-     */
-    public function loadCfg($file, $key = '', $default = '', $reload = false) {
-        static $configs = array();
-        if (!$reload && isset($configs[$file])) {
-            if (empty($key)) {
-                return $configs[$file];
-            } elseif (isset($configs[$file][$key])) {
-                return $configs[$file][$key];
-            } else {
-                return $default;
-            }
-        }
-        $environment = KantRegistry::get('environment');
-        if ($file == 'Config') {
-            //Core configuration
-            $coreConfig = include KANT_PATH . DIRECTORY_SEPARATOR . 'Config/Base.php';
-            //Application configration
-            $appConfig = include CFG_PATH . $environment . DIRECTORY_SEPARATOR . 'Config.php';
-            $configs[$file] = array_merge($configs, $appConfig);
-        } else {
-            $filepath = CFG_PATH . $environment . DIRECTORY_SEPARATOR . $file . '.php';
-            if (file_exists($filepath)) {
-                $configs[$file] = include $filepath;
-            }
-        }
-
-
-        if (empty($key)) {
-            return $configs[$file];
-        } elseif (isset($configs[$file][$key])) {
-            return $configs[$file][$key];
-        } else {
-            return $default;
-        }
-    }
-
-    /**
-     *
      * Load model
      *
      * @param classname string
@@ -198,7 +154,8 @@ class Base {
      * @param integer $second
      */
     public function redirect($message, $url = 'goback', $second = 3) {
-        $redirectTpl = $this->loadCfg('Config', 'redirect_tpl');
+        $config = KantRegistry::get('config');
+        $redirectTpl = $config['redirect_tpl'];
         if ($redirectTpl) {
             include TPL_PATH . $redirectTpl . '.php';
         } else {
@@ -215,7 +172,8 @@ class Base {
     public function getLang() {
         static $lang;
         if (empty($lang)) {
-            $lang = !empty($_COOKIE['lang']) ? $_COOKIE['lang'] : $this->loadCfg('Config', 'lang');
+            $config = KantRegistry::get('config');
+            $lang = !empty($_COOKIE['lang']) ? $_COOKIE['lang'] : $config['lang'];
             if (empty($lang)) {
                 $lang = 'en_US';
             }
@@ -253,8 +211,9 @@ class Base {
      * 
      * @return type
      */
-    public function loadCache() {
-        $this->_cacheConfig = $this->loadCfg('Cache');
+    public function loadCache() {        
+        $config = KantRegistry::get('config');
+        $this->_cacheConfig = $config['cache'];
         if (!isset($this->_cacheConfig[$this->cacheAdapter])) {
             $this->cacheAdapter = 'default';
         }
@@ -277,8 +236,8 @@ class Base {
         if ($this->cookie) {
             return $this->cookie;
         }
-//        require_once KANT_PATH . 'Cookie' . DIRECTORY_SEPARATOR . 'Cookie.php';
-        $this->_cookieConfig = $this->loadCfg('Cookie');
+        $config = KantRegistry::get('config');
+        $this->_cookieConfig = $config['cookie'];
         try {
             $this->cookie = Cookie::getInstance($this->_cookieConfig);
         } catch (RuntimeException $e) {
@@ -298,7 +257,8 @@ class Base {
             return $this->session;
         }
 //        require_once KANT_PATH . 'Session' . DIRECTORY_SEPARATOR . 'Session.php';
-        $this->_sessionConfig = $this->loadCfg('Session');
+        $config = KantRegistry::get('config');
+        $this->_sessionConfig = $config['session'];
         if (!isset($this->_sessionConfig[$this->sessionAdapter])) {
             $this->sessionAdapter = 'default';
         }
@@ -324,9 +284,9 @@ class Base {
      */
     public function url($url = '', $vars = '', $suffix = true) {
         $originalparams = array();
-        $this->cfg = $this->loadCfg('Config');
-        if (strpos($url, $this->cfg['url_suffix']) !== false) {
-            $url = rtrim($url, $this->cfg['url_suffix']);
+        $config = KantRegistry::get('config');
+        if (strpos($url, $config['url_suffix']) !== false) {
+            $url = rtrim($url, $config['url_suffix']);
         }
         $info = parse_url($url);
         if (isset($info['fragment'])) {
@@ -386,7 +346,7 @@ class Base {
         }
         //$url = rtrim($url, "/");
         if ($suffix) {
-            $suffix = $suffix === true ? $this->loadCfg('Config', 'url_suffix') : $suffix;
+            $suffix = $suffix === true ? $config['url_suffix'] : $suffix;
             if ($pos = strpos($suffix, '|')) {
                 $suffix = substr($suffix, 0, $pos);
             }
@@ -450,7 +410,8 @@ class Base {
      * @return 
      */
     public function debugStatus() {
-        $this->debug = $this->loadCfg('Config', 'debug');
+        $config = KantRegistry::get('config');
+        $this->debug = $config['debug'];
         if (!empty($this->debug)) {
             ini_set('display_errors', 1);
             error_reporting(E_ALL);

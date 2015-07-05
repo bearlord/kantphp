@@ -55,7 +55,8 @@ final class Driver {
      */
     public static function getInstance($dbConfig = '') {
         if ($dbConfig == '') {
-            $dbConfig = require_once CFG_PATH . 'Db.php';
+            $config = KantRegistry::get('config');
+            $dbConfig = $config['database'];
         }
         if (self::$_database == '') {
             self::$_database = new self();

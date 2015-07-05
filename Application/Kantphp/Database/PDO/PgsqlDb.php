@@ -22,7 +22,7 @@ class PdoPgsqlDb extends DbQueryAbstract implements DbQueryInterface {
     private $_config;
 
     public function __construct() {
-        
+        parent::__construct();
     }
 
     /**

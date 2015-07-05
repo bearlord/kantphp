@@ -62,7 +62,8 @@ class BaseModel extends Base {
      * 
      */
     public function createDbo() {
-        $this->_dbConfig = require_once CFG_PATH . KantRegistry::get('environment') . DIRECTORY_SEPARATOR . 'Db.php';
+        $config = KantRegistry::get('config');
+        $this->_dbConfig = $config['database'];
         if (!isset($this->_dbConfig[$this->adapter])) {
             $this->adapter = 'default';
         }

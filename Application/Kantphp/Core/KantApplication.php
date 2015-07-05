@@ -87,6 +87,7 @@ final class Kant extends Base {
         $appConfig = include CFG_PATH . self::$_environment . DIRECTORY_SEPARATOR . 'Config.php';
         self::$config->merge($coreConfig)->merge($appConfig);
         self::$_config = self::$config->reference();
+        KantRegistry::set('config',  self::$_config);
     }
 
     /**
@@ -164,7 +165,8 @@ final class Kant extends Base {
         $this->bootstrap();
         $this->bootstrapModule();
         $controller = $this->dispatchController();
-        $action = isset($this->_dispatchInfo['act']) ? $this->_dispatchInfo['act'] . 'Action' : 'IndexAction';
+        $actionSuffix = self::$_config['action_suffix'];
+        $action = isset($this->_dispatchInfo['act']) ? $this->_dispatchInfo['act'] . $actionSuffix : 'Index' . $actionSuffix;
         if (!$controller) {
             $controller = $this->dispatchController('empty');
             if (empty($controller)) {
