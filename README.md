@@ -1,7 +1,7 @@
 KantPHP Framework
 =======
 
-KantPHP Framework was a PHP framework for studing framework by DongZhu originally. It's based on PHP5.3+  developped since three years ago. 
+KantPHP Framework was a PHP framework for studing framework by DongZhu originally. It's developped since three years ago. 
 
 KantPHP Framework is now a rapid PHP Framework for developing web application using PHP5.3+. It's available  to download and use for free as Open Source,under the BSD 3-Clause license.
 
