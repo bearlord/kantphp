@@ -10,7 +10,7 @@
 
 require_once KANT_PATH . '/Core/Base.php';
 
-final class Kant extends Base {
+final class Kant {
 
     private static $_instance = null;
     private static $_autoCoreClass = array(
