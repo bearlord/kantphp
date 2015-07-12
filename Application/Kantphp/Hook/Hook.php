@@ -11,9 +11,10 @@ class Hook {
     static private $tags = array();
 
     /**
-     * 动态添加插件到某个标签
-     * @param string $tag 标签名称
-     * @param mixed $name 插件名称
+     * Dynamically added plugin to a tag
+     * 
+     * @param string $tag tag name
+     * @param mixed $name plugin name
      * @return void
      */
     static public function add($tag, $name) {
@@ -28,15 +29,16 @@ class Hook {
     }
 
     /**
-     * 批量导入插件
-     * @param array $data 插件信息
-     * @param boolean $recursive 是否递归合并
+     * import plugins
+     * 
+     * @param array $data plugin information
+     * @param boolean $recursive recursive 
      * @return void
      */
     static public function import($data, $recursive = true) {
-        if (!$recursive) { // 覆盖导入
+        if (!$recursive) { 
             self::$tags = array_merge(self::$tags, $data);
-        } else { // 合并导入
+        } else { 
             foreach ($data as $tag => $val) {
                 if (!isset(self::$tags[$tag]))
                     self::$tags[$tag] = array();
@@ -67,7 +69,8 @@ class Hook {
     }
 
     /**
-     * 监听标签的插件
+     * Listion tag's plugin
+     * 
      * @param string $tag 标签名称
      * @param mixed $params 传入参数
      * @return void
@@ -77,7 +80,6 @@ class Hook {
             foreach (self::$tags[$tag] as $name) {
                 $result = self::exec($name, $tag, $params);
                 if (false === $result) {
-                    // 如果返回false 则中断插件执行
                     return;
                 }
             }
@@ -86,10 +88,11 @@ class Hook {
     }
 
     /**
-     * 执行某个插件
-     * @param string $name 插件名称
-     * @param string $tag 方法名（标签名）     
-     * @param Mixed $params 传入的参数
+     * Exec plugin
+     * 
+     * @param string $name plugin name
+     * @param string $tag tag name     
+     * @param Mixed $params params
      * @return void
      */
     static public function exec($name, $tag, &$params = NULL) {

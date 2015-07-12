@@ -1,6 +1,6 @@
 <?php
 
-class FsConsole {
+class FileSystemConsole {
 
     private static $_fsHandle;
     private $_fsConfig = array();
