@@ -27,8 +27,8 @@ final class Kant {
         'Session' => 'Session/Session.php',
         'Log' => 'Log/Log.php',
         'Hook' => 'Hook/Hook.php',
-        'Bootstrap' => '/Bootstrap/Bootstrap.php',
-        'Widget' => '/Widget/Widget.php'
+        'Bootstrap' => 'Bootstrap/Bootstrap.php',
+        'Widget' => 'Widget/Widget.php'
     );
     private static $_environment = 'Development';
 
