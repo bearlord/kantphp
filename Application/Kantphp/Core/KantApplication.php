@@ -87,7 +87,7 @@ final class Kant {
         $appConfig = include CFG_PATH . self::$_environment . DIRECTORY_SEPARATOR . 'Config.php';
         self::$config->merge($coreConfig)->merge($appConfig);
         self::$_config = self::$config->reference();
-        KantRegistry::set('config',  self::$_config);
+        KantRegistry::set('config', self::$_config);
     }
 
     /**
@@ -207,11 +207,7 @@ final class Kant {
         } else {
             $controller = ucfirst($controller) . "Controller";
         }
-        if ($module) {
-            $filepath = APP_PATH . 'Module' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'Controller' . DIRECTORY_SEPARATOR . $controller . '.php';
-        } else {
-            $filepath = APP_PATH . 'Controller' . DIRECTORY_SEPARATOR . $controller . '.php';
-        }
+        $filepath = APP_PATH . 'Module' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'Controller' . DIRECTORY_SEPARATOR . $controller . '.php';
         $key = md5($filepath . $controller);
         if (isset($classes[$key])) {
             if (!empty($classes[$key])) {
@@ -235,23 +231,12 @@ final class Kant {
      */
     protected function bootstrap() {
         static $classes = array();
-        $classname = '_Bootstrap';
+        $classname = 'AppBootstrap';
         $filepath = APP_PATH . 'Bootstrap' . DIRECTORY_SEPARATOR . $classname . '.php';
-        $key = md5($filepath . $classname);
-        if (isset($classes[$key])) {
-            if (!empty($classes[$key])) {
-                return $classes[$key];
-            } else {
-                return true;
-            }
-        }
         if (file_exists($filepath)) {
             include $filepath;
-            if (class_exists($classname)) {
-                $bootstrap = new $classname;
-                if (method_exists($bootstrap, 'initialize')) {
-                    $bootstrap->initialize();
-                }
+            if (method_exists($classname, 'initialize')) {
+                return call_user_func_array(array($classname, 'initialize'), array());
             }
         }
     }
@@ -264,26 +249,11 @@ final class Kant {
     protected function bootstrapModule() {
         $module = isset($this->_dispatchInfo['module']) ? ucfirst($this->_dispatchInfo['module']) : '';
         $classname = $module . 'Bootstrap';
-        if ($module) {
-            $filepath = APP_PATH . 'Module' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'Bootstrap' . DIRECTORY_SEPARATOR . $classname . '.php';
-        } else {
-            $filepath = APP_PATH . 'Bootstrap' . DIRECTORY_SEPARATOR . $classname . '.php';
-        }
-        $key = md5($filepath . $classname);
-        if (isset($classes[$key])) {
-            if (!empty($classes[$key])) {
-                return $classes[$key];
-            } else {
-                return true;
-            }
-        }
+        $filepath = APP_PATH . 'Module' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'Bootstrap' . DIRECTORY_SEPARATOR . $classname . '.php';
         if (file_exists($filepath)) {
             include $filepath;
-            if (class_exists($classname)) {
-                $bootstrap = new $classname;
-                if (method_exists($bootstrap, 'initialize')) {
-                    $bootstrap->initialize();
-                }
+            if (method_exists($classname, 'initialize')) {
+                return call_user_func_array(array($classname, 'initialize'), array());
             }
         }
     }
@@ -383,7 +353,6 @@ final class Kant {
     public function setDispatchInfo($dispatchInfo = null) {
         if (null === $dispatchInfo) {
             $router = $this->getRouter();
-            $router->setModuleType(self::$_config['module_type']);
             $router->setUrlSuffix(self::$_config['url_suffix']);
             $router->add(self::$_config['route_rules']);
             $router->enableDynamicMatch(true, self::$_config['route']);

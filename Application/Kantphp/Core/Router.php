@@ -47,24 +47,6 @@ class Router {
     }
 
     /**
-     * Set module type
-     * 
-     * @param type $var
-     */
-    public function setModuleType($var) {
-        $this->_moduleType = $var;
-    }
-
-    /**
-     * Get Module type
-     * 
-     * @return type
-     */
-    public function getModuleType() {
-        return $this->_moduleType;
-    }
-
-    /**
      * Set url suffix
      * 
      * @param type $var
@@ -168,23 +150,15 @@ class Router {
      */
     protected function _dynamicMatch($pathInfo) {
         $tmp = explode('/', $pathInfo);
-        if ($this->getModuleType() == true) {
-            if ($module = current($tmp)) {
-                $dispatchInfo['module'] = ucfirst(current($tmp));
-            } else {
-                $dispatchInfo['module'] = ucfirst($this->_dynamicRule['module']);
-            }
-            if ($controller = next($tmp)) {
-                $dispatchInfo['ctrl'] = ucfirst($controller);
-            } else {
-                $dispatchInfo['ctrl'] = ucfirst($this->_dynamicRule['ctrl']);
-            }
+        if ($module = current($tmp)) {
+            $dispatchInfo['module'] = ucfirst(current($tmp));
         } else {
-            if ($controller = current($tmp)) {
-                $dispatchInfo['ctrl'] = ucfirst($controller);
-            } else {
-                $dispatchInfo['ctrl'] = ucfirst($this->_dynamicRule['ctrl']);
-            }
+            $dispatchInfo['module'] = ucfirst($this->_dynamicRule['module']);
+        }
+        if ($controller = next($tmp)) {
+            $dispatchInfo['ctrl'] = ucfirst($controller);
+        } else {
+            $dispatchInfo['ctrl'] = ucfirst($this->_dynamicRule['ctrl']);
         }
         if ($action = next($tmp)) {
             if (strpos($action, "?") !== false) {

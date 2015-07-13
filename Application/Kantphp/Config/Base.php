@@ -1,7 +1,6 @@
 <?php
 
 return array(
-    'module_type' => false,
     'path_info_repair' => false,
     'route' => array(
         'module' => 'index',

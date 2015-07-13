@@ -15,7 +15,6 @@ class Base {
     protected $route;
     protected $request;
     protected $environment = 'Development';
-    protected $cfg;
     protected $debug;
     protected $input;
     //cache
@@ -198,7 +197,6 @@ class Base {
             }
         }
         if (!array_key_exists($language, $LANG)) {
-//			return $LANG['no_language'] . '[' . $language . ']';
             return $language;
         } else {
             $language = $LANG[$language];
@@ -211,7 +209,7 @@ class Base {
      * 
      * @return type
      */
-    public function loadCache() {        
+    public function loadCache() {
         $config = KantRegistry::get('config');
         $this->_cacheConfig = $config['cache'];
         if (!isset($this->_cacheConfig[$this->cacheAdapter])) {
@@ -308,30 +306,18 @@ class Base {
             parse_str($info['query'], $params);
             $vars = array_merge($params, $vars);
         }
-        
+
         $depr = "/";
         $url = trim($url, $depr);
         $path = explode($depr, $url);
-        if ($this->cfg['module_type'] === true) {
-            $var['module'] = $path[0];
-            $var['ctrl'] = !empty($path[1]) ? $path[1] : $this->cfg['route']['ctrl'];
-            $var['act'] = !empty($path[2]) ? $path[2] : $this->cfg['route']['act'];
-            if (!empty($path[3])) {
-                $restpath = array_slice($path, 3);
-                foreach ($restpath as $key => $val) {
-                    $arr = preg_split("/[,:=-]/", $val, 2);
-                    $originalparams[$arr[0]] = isset($arr[1]) ? $arr[1] : '';
-                }
-            }
-        } else {
-            $var['ctrl'] = !empty($path[0]) ? $path[0] : $this->get['ctrl'];
-            $var['act'] = !empty($path[1]) ? $path[1] : $this->get['act'];
-            if (!empty($path[2])) {
-                $restpath = array_slice($path, 2);
-                foreach ($restpath as $key => $val) {
-                    $arr = preg_split("/[,:=-]/", $val, 2);
-                    $originalparams[$arr[0]] = isset($arr[1]) ? $arr[1] : '';
-                }
+        $var['module'] = $path[0];
+        $var['ctrl'] = !empty($path[1]) ? $path[1] : $config['route']['ctrl'];
+        $var['act'] = !empty($path[2]) ? $path[2] : $config['route']['act'];
+        if (!empty($path[3])) {
+            $restpath = array_slice($path, 3);
+            foreach ($restpath as $key => $val) {
+                $arr = preg_split("/[,:=-]/", $val, 2);
+                $originalparams[$arr[0]] = isset($arr[1]) ? $arr[1] : '';
             }
         }
         $url = APP_URL . implode($depr, ($var));

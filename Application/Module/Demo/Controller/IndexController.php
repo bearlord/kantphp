@@ -13,6 +13,7 @@ class IndexController extends BaseController {
      * 欢迎
      */
     public function indexAction() {
+        echo $this->url('a/b/c');
         echo "Welcome to KantPHP";
     }
 
