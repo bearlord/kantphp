@@ -13,8 +13,7 @@ class IndexController extends BaseController {
      * 欢迎
      */
     public function indexAction() {
-        echo $this->url('a/b/c');
-        echo "Welcome to KantPHP";
+        echo "Welcome to KantPHP Framework";
     }
 
     /**
@@ -41,7 +40,6 @@ class IndexController extends BaseController {
     public function getAction() {
         print_r($_GET);
         print_r($this->get);
-        $this->view->display();
     }
 
     /**
@@ -50,7 +48,6 @@ class IndexController extends BaseController {
     public function postAction() {
         var_dump($_POST);
         var_dump($this->post);
-        $this->view->display();
     }
     
     public function _empty() {

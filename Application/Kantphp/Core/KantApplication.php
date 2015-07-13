@@ -322,12 +322,18 @@ final class Kant {
                         break;
                     }
                 }
-                $requestUri = str_replace(self::$_config['url_suffix'], '', strtolower(ltrim($requestUri, '/')));
+                $parse = parse_url($requestUri);
+                if (!empty($parse['query'])) {
+                    return;
+                }
+                $requestUri = str_replace(self::$_config['url_suffix'], '', strtolower(ltrim($requestUri, '/'))); 
                 $scriptName = strtolower(ltrim(dirname($_SERVER['SCRIPT_NAME']), '/'));
-                $pathinfo = str_replace($scriptName, '', $requestUri);
+                $pathinfo = ltrim(str_replace($scriptName, '', $requestUri));
+                if (strpos($pathinfo, "index.php/") !== false) {
+                    $pathinfo = str_replace("index.php/", "", $pathinfo);
+                }
             }
         }
-
         $this->_pathInfo = $pathinfo;
         return $this;
     }
@@ -357,8 +363,13 @@ final class Kant {
             $router->add(self::$_config['route_rules']);
             $router->enableDynamicMatch(true, self::$_config['route']);
             $pathInfo = $this->getPathInfo();
-            $dispatchInfo = $router->match($pathInfo);
-            $_GET = array_merge($_GET, $dispatchInfo);
+            if (!empty($pathInfo)) {
+                $dispatchInfo = $router->match($pathInfo);
+                $_GET = array_merge($_GET, $dispatchInfo);
+            } else {
+                $dispatchInfo = $_GET;
+            }
+
             KantRegistry::set('dispatchInfo', $dispatchInfo);
         }
         $this->_dispatchInfo = $dispatchInfo;

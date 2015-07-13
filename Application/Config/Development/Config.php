@@ -2,7 +2,7 @@
 
 return array(
     'route' => array(
-        'module' => 'blog',
+        'module' => 'demo',
         'ctrl' => 'index',
         'act' => 'index',
         'data' => array(
