@@ -1,7 +1,6 @@
 <?php
 
 return array(
-    'module_type' => true,
     'route' => array(
         'module' => 'blog',
         'ctrl' => 'index',
