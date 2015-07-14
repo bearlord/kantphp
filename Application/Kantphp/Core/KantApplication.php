@@ -317,20 +317,27 @@ final class Kant {
                 foreach (array('REQUEST_URI', 'HTTP_X_REWRITE_URL', 'argv') as $var) {
                     if ($requestUri = $_SERVER[$var]) {
                         if ($var == 'argv') {
-                            $requestUri = $requestUri[0];
+                            $requestUri = strtolower($requestUri[0]);
                         }
                         break;
                     }
                 }
-                $parse = parse_url($requestUri);
-                if (!empty($parse['query'])) {
-                    return;
-                }
-                $requestUri = str_replace(self::$_config['url_suffix'], '', strtolower(ltrim($requestUri, '/'))); 
+                $requestUri = str_replace(self::$_config['url_suffix'], '', ltrim($requestUri, '/'));
                 $scriptName = strtolower(ltrim(dirname($_SERVER['SCRIPT_NAME']), '/'));
-                $pathinfo = ltrim(str_replace($scriptName, '', $requestUri));
-                if (strpos($pathinfo, "index.php/") !== false) {
-                    $pathinfo = str_replace("index.php/", "", $pathinfo);
+                //url as [/index.php?module=demo&ctrl=index&act=index] or [/index.php/demo/index/index]
+                if (strpos($requestUri, "index.php") !== false) {
+                    $parse = parse_url($requestUri);
+                    if (!empty($parse['query'])) {
+                        $pathinfo = '';
+                    } else {
+                        $pathinfo = ltrim(str_replace($scriptName, '', $requestUri));
+                        if (strpos($pathinfo, "index.php/") !== false) {
+                            $pathinfo = str_replace("index.php/", "", $pathinfo);
+                        }
+                    }
+                } else {
+                    //url as /demo/index/index
+                    $pathinfo = ltrim(str_replace($scriptName, '', $requestUri));
                 }
             }
         }
