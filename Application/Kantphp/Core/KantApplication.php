@@ -327,7 +327,7 @@ final class Kant {
                 //url as [/index.php?module=demo&ctrl=index&act=index] or [/index.php/demo/index/index]
                 if (strpos($requestUri, "index.php") !== false) {
                     $parse = parse_url($requestUri);
-                    if (!empty($parse['query'])) {
+                    if (!empty($parse['query']) && !empty($parse['query']['module'])) {
                         $pathinfo = '';
                     } else {
                         $pathinfo = ltrim(str_replace($scriptName, '', $requestUri));
