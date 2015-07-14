@@ -327,16 +327,18 @@ final class Kant {
                 //url as [/index.php?module=demo&ctrl=index&act=index] or [/index.php/demo/index/index]
                 if (strpos($requestUri, "index.php") !== false) {
                     $parse = parse_url($requestUri);
-                    if (!empty($parse['query']) && !empty($parse['query']['module'])) {
-                        $pathinfo = '';
+                    //url as [/index.php?module=demo&ctrl=index&act=index] 
+                    if (!empty($parse['query']) && strpos($parse['query'], 'module') !== false) {
+                        $pathinfo = "";
                     } else {
+                        //url as [/index.php/demo/index/index]
                         $pathinfo = ltrim(str_replace($scriptName, '', $requestUri));
                         if (strpos($pathinfo, "index.php/") !== false) {
                             $pathinfo = str_replace("index.php/", "", $pathinfo);
                         }
                     }
                 } else {
-                    //url as /demo/index/index
+                    //url as [/demo/index/index]
                     $pathinfo = ltrim(str_replace($scriptName, '', $requestUri));
                 }
             }
@@ -374,9 +376,12 @@ final class Kant {
                 $dispatchInfo = $router->match($pathInfo);
                 $_GET = array_merge($_GET, $dispatchInfo);
             } else {
-                $dispatchInfo = $_GET;
+                $dispatchInfo['module'] = empty($_GET['module']) ? self::$_config['route']['module'] : $_GET['module'];
+                $dispatchInfo['ctrl'] = empty($_GET['ctrl']) ? self::$_config['route']['ctrl'] : $_GET['ctrl'];
+                $dispatchInfo['act'] = empty($_GET['act']) ? self::$_config['route']['act'] : $_GET['act'];
+                $merge = array_merge($_GET, $dispatchInfo);
+                $dispatchInfo = $_GET = $merge;
             }
-
             KantRegistry::set('dispatchInfo', $dispatchInfo);
         }
         $this->_dispatchInfo = $dispatchInfo;
