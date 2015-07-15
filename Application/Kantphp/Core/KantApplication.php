@@ -200,7 +200,6 @@ final class Kant {
      * @throws KantException
      */
     protected function dispatchController($controller = '') {
-        static $classes = array();
         $module = isset($this->_dispatchInfo['module']) ? $this->_dispatchInfo['module'] : '';
         if (empty($controller)) {
             $controller = $this->_dispatchInfo['ctrl'] . 'Controller';
@@ -208,17 +207,11 @@ final class Kant {
             $controller = ucfirst($controller) . "Controller";
         }
         $filepath = APP_PATH . 'Module' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'Controller' . DIRECTORY_SEPARATOR . $controller . '.php';
-        $key = md5($filepath . $controller);
-        if (isset($classes[$key])) {
-            if (!empty($classes[$key])) {
-                return $classes[$key];
-            }
-        }
         if (file_exists($filepath)) {
             include $filepath;
             if (class_exists($controller)) {
-                $classes[$key] = new $controller;
-                return $classes[$key];
+                $class = new $controller;
+                return $class;
             }
         }
     }
@@ -230,7 +223,6 @@ final class Kant {
      * @return boolean|array
      */
     protected function bootstrap() {
-        static $classes = array();
         $classname = 'AppBootstrap';
         $filepath = APP_PATH . 'Bootstrap' . DIRECTORY_SEPARATOR . $classname . '.php';
         if (file_exists($filepath)) {
@@ -270,36 +262,9 @@ final class Kant {
             return true;
         }
         if (isset(self::$_autoCoreClass[$className])) {
-//            echo KANT_PATH . self::$_autoCoreClass[$className] . '<br />';
             require_once KANT_PATH . self::$_autoCoreClass[$className];
             return true;
         }
-    }
-
-    /**
-     * Set router
-     *
-     * @param Kant_Router $router
-     * @return Cola
-     */
-    public function setRouter($router = null) {
-        if (null === $router) {
-            $router = Router::getInstance();
-        }
-        $this->_router = $router;
-        return $this;
-    }
-
-    /**
-     * Get router
-     *
-     * @return Kant_Router
-     */
-    public function getRouter() {
-        if (null === $this->_router) {
-            $this->setRouter();
-        }
-        return $this->_router;
     }
 
     /**
@@ -367,7 +332,7 @@ final class Kant {
      */
     public function setDispatchInfo($dispatchInfo = null) {
         if (null === $dispatchInfo) {
-            $router = $this->getRouter();
+            $router = Router::getInstance();
             $router->setUrlSuffix(self::$_config['url_suffix']);
             $router->add(self::$_config['route_rules']);
             $router->enableDynamicMatch(true, self::$_config['route']);
