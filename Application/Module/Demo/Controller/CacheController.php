@@ -15,6 +15,10 @@ class CacheController extends BaseController {
         print_r($this->cache->get("xu"));
         echo '<br />';
         highlight_file(__FILE__);
+        $tmp = str_repeat('hello', 10000000);
+        Runtime::mark('end');
+        $usage = Runtime::calculate();
+        var_dump($usage);
     }
 
 }

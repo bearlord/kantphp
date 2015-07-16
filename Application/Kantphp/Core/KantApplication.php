@@ -14,7 +14,7 @@ final class Kant {
 
     private static $_instance = null;
     private static $_autoCoreClass = array(
-        'Router' => 'Core/Router.php',
+        'Router' => 'Core/KantRouter.php',
         'KantConfig' => 'Config/KantConfig.php',
         'KantRegistry' => 'Core/KantRegistry.php',
         'KantException' => 'Core/KantException.php',
@@ -25,6 +25,7 @@ final class Kant {
         'Cache' => 'Cache/Cache.php',
         'Cookie' => 'Cookie/Cookie.php',
         'Session' => 'Session/Session.php',
+        'Runtime' => 'Runtime/Runtime.php',
         'Log' => 'Log/Log.php',
         'Hook' => 'Hook/Hook.php',
         'Bootstrap' => 'Bootstrap/Bootstrap.php',
@@ -147,7 +148,8 @@ final class Kant {
      * Run
      */
     public function run() {
-        Hook::listen('app_begin');
+        Runtime::mark('begin');
+        Hook::listen('app_begin');       
         $this->exec();
         Hook::listen('app_end');
     }
