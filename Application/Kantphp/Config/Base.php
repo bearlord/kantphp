@@ -1,7 +1,6 @@
 <?php
 
 return array(
-    'path_info_repair' => false,
     'route' => array(
         'module' => 'index',
         'ctrl' => 'index',
@@ -11,9 +10,15 @@ return array(
         )
     ),
     'route_rules' => array(),
+    'path_info_repair' => false,
     'debug' => false,
     'url_suffix' => '.html',
     'action_suffix' => 'Action',
+    'redirect_tpl' => 'dispatch/redirect',
+    'lang' => 'zh_CN',
+    'default_timezone' => 'Etc/GMT-8',
+    'charset' => 'utf-8',
+    'lock_ex' => '1',
     'cookie' => array(
         'cookie_domain' => '',
         'cookie_path' => '/',
@@ -113,6 +118,5 @@ return array(
             'port' => 6379
         )
     ),
-    'default_timezone' => 'Etc/GMT-8'
 );
 

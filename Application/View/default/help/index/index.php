@@ -51,8 +51,8 @@
                     <ul class="nav nav-tabs nav-stacked" data-spy="affix" data-offset-top="125">
                         <li class="active"><a href="#welcome">1.欢迎使用KantPHP</a></li>
                         <li><a href="#faststart">2.快速开始</a></li>
-                        <li><a href="#architecture">3.架构原理</a></li>
-                        <li><a href="#section-3">4.项目配置说明</a></li>
+                        <li><a href="#schema">3.架构原理</a></li>
+                        <li><a href="#configure">4.项目配置</a></li>
                         <li><a href="#section-4">5.MVC模式快速开发</a></li>
                         <li><a href="#section-5">6.模块化开发流程</a></li>
                         <li><a href="#section-5">7.控制器</a></li>
@@ -117,18 +117,65 @@
                             <p>http://localhost/kantphp/[模型名称]/[控制器名称]/[操作名称]/[参数名,参数值]/...[.html]</p>
                         </blockquote>
                     </div><!-- /.help-post -->
-                    <div class="help-post" id="architecture">
+                    <div class="help-post" id="schema">
                         <div class="page-header">
                             <h2 class="help-post-title">3. 架构原理</h2>
                         </div>
                         <h3>3.1 入口</h3>
                         <p>程序的入口文件是index.php。</p>
+                        <p>流程图完善中。</p>
+                    </div><!-- /.help-post -->
+                    <div class="help-post" id="configure">
+                        <div class="page-header">
+                            <h2 class="help-post-title">4. 项目配置</h2>
+                        </div>
+                        <h3>4.1 路径</h3>
+                        <p>配置文件位于/Applcation/Config/。</p>
+                        <h3>4.2 环境</h3>
+                        <p>为方便项目开发与生产配置，可在入口文件选择环境。以最小改动的代价，有利于迭代开发与版本更替。</p>
+                        <blockquote>
+                            <p><em>Kant::createApplication('Development')->boot();</em> 表示开发环境，加载的配置文件为：<em>/Applcation/Config/Deveplopment/Config.php</em></p>
+                            <p><em>Kant::createApplication('Production')->boot(); </em> 表示生产环境，加载的配置文件为：<em>/Applcation/Config/Deveplopment/Config.php</em></p>
+                        </blockquote>
+                        <h3>4.3 说明</h3>
+                        <blockquote>
+                            <p>配置文件以key=>value的数组形式保存</p>
+                            <p><code> 'module' => 'demo' </code>默认的模块Moduel</p>
+                            <p><code> 'ctrl' => 'index', </code>默认的控制器Controller</p>
+                            <p><code> 'act' => 'index', </code>默认的动作Action</p>
+                            <p><code> 'data' => array('GET' => array()), </code>默认的参数Parameter</p>
+                            <p><code> 'route_rules' => array(
+                                    '|topic/id,(\d+)|i' => 'blog/detail/index/id,$1/c,$2'
+                                    ),</code>Rewrite规则，可用正则表达式</p>
+                            <p><code> 'path_info_repair' => false, </code>是否开启Pathinfo修复。如果你的Web服务器不支持Pathinfo，开启此设置。</p>
+                            <p><code> 'debug' => true, </code>是否开启调试模式</p>                            
+                            <p><code> 'url_suffix' => '.html', </code>URL后缀</p>
+                            <p><code> 'redirect_tpl' => 'dispatch/redirect', </code>页面跳转模板</p>
+                            <p><code> 'lang' => 'zh_CN', </code>默认语言</p>
+                            <p><code> 'charset' => 'utf-8', </code>默认编码</p>
+                            <p><code> 'default_timezone' => 'Etc/GMT-8', </code>默认时区</p>
+                            <p><code> 'database' => array('deault'=>array()...), </code>数据库配置。可配置多个数据库，通过模型Model来操作。</p>
+                            <p><code> 'cookie_domain' => '', </code>Cookie作用域</p>
+                            <p><code> 'cookie_path' => '/', </code>Cookie路径</p>
+                            <p><code> 'cookie_pre' => 'kantphp_', </code>Cookie前缀</p>
+                            <p><code> 'cookie_ttl' => 0, </code>Cookie失效时间</p>
+                            <p><code> 'session' => array(
+                                    'default' =>array()...), </code>Session配置。Session可以默认保存，也可以保存到指定路径，数据库等。</p>
+                            <p><code> 'cache' => array(
+                                    'defalut'=>array()...), </code>缓存配置。选项有文件缓存，Memcache，Redis缓存。</p>
+                            <p>如果你希望自定义配置，继续写入key=>value键值对。<code></code></p>
+                        </blockquote>
+                        <h3>4.4 读取配置</h3>
+                        <p>为提高执行效率，项目初始化时，配置文件以注册模式载入了内存，不需要再读取文件。而且在开发和生产环境之间的来回切换，直接读取文件有不可预知的问题。</p>
+                        <blockquote>
+                            <p><code>$config = KantRegistry::get('config');$lang = $config['lang']; </code>读取项目配置的默认语言。</code></p>
+                        </blockquote>
                     </div><!-- /.help-post -->
                 </div>
             </div><!-- /.container -->
 
             <footer class="help-footer">
-                <p>Copyleft By<a href="http://www.kantphp.com"> KantPHP Framework </a></p>
+                <p>Copyright By<a href="http://www.kantphp.com"> KantPHP Framework Studio </a></p>
                 <p>
                     <a href="#">Back to top</a>
                 </p>
