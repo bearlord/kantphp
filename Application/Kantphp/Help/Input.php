@@ -16,6 +16,7 @@
  */
 class Input {
 
+    private static $_instance;
     private $filter = null;
     private static $_input = array('get', 'post', 'request', 'env', 'server', 'cookie', 'session', 'globals', 'config', 'lang', 'call');
     public static $htmlTags = array(
@@ -23,8 +24,11 @@ class Input {
         'ban' => 'html|head|meta|link|base|basefont|body|bgsound|title|style|script|form|iframe|frame|frameset|applet|id|ilayer|layer|name|script|style|xml',
     );
 
-    static public function getInstance() {
-        return get_instance_of(__CLASS__);
+    public static function getInstance() {
+        if (self::$_instance == '') {
+            self::$_instance = new self;
+        }
+        return self::$_instance;
     }
 
     public function __call($type, $args = array()) {

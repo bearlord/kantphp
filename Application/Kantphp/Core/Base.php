@@ -31,10 +31,10 @@ class Base {
 
     public function __construct() {
         $this->debug = $this->debugStatus();
-        $this->loadCache();
-        $this->loadCookie();
-        $this->loadSession();
-        $this->input = new Input();
+        $this->_initCache();
+        $this->_initCookie();
+        $this->_initSession();
+        $this->input = Input::getInstance();
     }
 
     /**
@@ -209,7 +209,7 @@ class Base {
      * 
      * @return type
      */
-    public function loadCache() {
+    private function _initCache() {
         $config = KantRegistry::get('config');
         $this->_cacheConfig = $config['cache'];
         if (!isset($this->_cacheConfig[$this->cacheAdapter])) {
@@ -230,7 +230,7 @@ class Base {
     /**
      * Load Cookie
      */
-    public function loadCookie() {
+    private function _initCookie() {
         if ($this->cookie) {
             return $this->cookie;
         }
@@ -250,7 +250,7 @@ class Base {
     /**
      * Load Session
      */
-    public function loadSession() {
+    private function _initSession() {
         if ($this->sessioin) {
             return $this->session;
         }

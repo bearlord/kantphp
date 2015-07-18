@@ -53,16 +53,19 @@
                         <li><a href="#faststart">2.快速开始</a></li>
                         <li><a href="#schema">3.架构原理</a></li>
                         <li><a href="#configure">4.项目配置</a></li>
-                        <li><a href="#section-4">5.MVC模式快速开发</a></li>
-                        <li><a href="#section-5">6.模块化开发流程</a></li>
-                        <li><a href="#section-5">7.控制器</a></li>
+                        <li><a href="#module">5.模块化开发</a></li>
+                        <li><a href="#mvcpattern">6.MVC模式</a></li>
+                        <li><a href="#controller">7.控制器</a></li>
                         <li><a href="#section-5">8.视图</a></li>
                         <li><a href="#section-5">9.模型</a></li>
-                        <li><a href="#section-5">10.路由与重写</a></li>
-                        <li><a href="#section-5">11.扩展</a></li>
-                        <li><a href="#section-5">12.第三方类库</a></li>
-                        <li><a href="#section-5">13.独立文件服务器</a></li>
-                        <li><a href="#section-5">14.多库操作</a></li>
+                        <li><a href="#cookie">10.Cookie</a></li>
+                        <li><a href="#cookie">11.Session</a></li>
+                        <li><a href="#cache">12.Cache</a></li>
+                        <li><a href="#section-5">13.路由与重写</a></li>
+                        <li><a href="#section-5">14.扩展</a></li>
+                        <li><a href="#section-5">15.第三方类库</a></li>
+                        <li><a href="#section-5">16.独立文件服务器</a></li>
+                        <li><a href="#section-5">17.多库操作</a></li>
                     </ul>
                 </div>
                 <div class="col-xs-9 col-sm-8 help-main">
@@ -98,7 +101,7 @@
                             <p>PHP打开常用扩展如：php_gd,php_mbstring,php_curl以及连接数据库的扩展，如果连接PostgreSQL,建议采用PDO扩展连接。</p>
                         </blockquote>
                         <h3>2.2 获取KantPHP Framework</h3>
-                        <p>从<a href="https://github.com/bearlord/kantphp/releases" target="_blank">Github</a>获取KantPHP的发行版或者<a href="https://github.com/bearlord/kantphp/">Git Clone</a>最新版，解压并复制到WEB服务器根目录，如/srv/htdocs/kantphp，并赋予目录kantphp写权限和可执行权限。如果是开发环境，粗暴的设置为 <em>0777</em> 是不错的选择。我们会在后续署章节中再讨论权限。</p>
+                        <p>从<a href="https://github.com/bearlord/kantphp/releases" target="_blank">Github</a>获取KantPHP的发行版或者<a href="https://github.com/bearlord/kantphp/">Git Clone</a>最新版，解压并复制到WEB服务器根目录，如/srv/www/htdocs/kantphp，并赋予目录kantphp写权限和可执行权限。如果是开发环境，粗暴的设置为 <em>0777</em> 是不错的选择。我们会在后续署章节中再讨论权限。</p>
                         <p>打开浏览器，输入<em>http://localhost/kantphp/</em>，如果你见到页面上显示：</p>
                         <blockquote>
                             <p>Welcome to KantPHP Framework</p>
@@ -148,10 +151,10 @@
                                     '|topic/id,(\d+)|i' => 'blog/detail/index/id,$1/c,$2'
                                     ),</code>Rewrite规则，可用正则表达式</p>
                             <p><code> 'path_info_repair' => false, </code>是否开启Pathinfo修复。如果你的Web服务器不支持Pathinfo，开启此设置。</p>
-                            <p><code> 'debug' => true, </code>是否开启调试模式</p>                            
+                            <p><code> 'debug' => true, </code>是否开启调试模式</p>
                             <p><code> 'url_suffix' => '.html', </code>URL后缀</p>
                             <p><code> 'redirect_tpl' => 'dispatch/redirect', </code>页面跳转模板</p>
-                            <p><code> 'lang' => 'zh_CN', </code>默认语言</p>
+                            <p><code> 'lang' => 'zh_CN', </code>默认语言。对应的语言包文件是<em>/Application/Locale/zh_CN/App.php。</em></p>
                             <p><code> 'charset' => 'utf-8', </code>默认编码</p>
                             <p><code> 'default_timezone' => 'Etc/GMT-8', </code>默认时区</p>
                             <p><code> 'database' => array('deault'=>array()...), </code>数据库配置。可配置多个数据库，通过模型Model来操作。</p>
@@ -171,6 +174,90 @@
                             <p><code>$config = KantRegistry::get('config');$lang = $config['lang']; </code>读取项目配置的默认语言。</code></p>
                         </blockquote>
                     </div><!-- /.help-post -->
+                    <div class="help-post" id="module">
+                        <div class="page-header">
+                            <h2 class="help-post-title">5. 模块化开发</h2>
+                        </div>
+                        <p>通俗一点讲，模块就是把源文件进行分割。模块化由小块的、分散的代码块组成，每一块都是独立的。这些代码块可以由不同的团队进行开发，而他们都有各自的生命周期和时间表。最终将模块进行集成。</p>
+                        <h3>5.1 优点</h3>
+                        <ol>
+                            <li>思路清晰。水平分割项目后，大项目变小项目，容易理清思路，避免遗漏和陷阱。</li>
+                            <li>减少开发时间。分布式开发，减少与其他模块开发者的交流与等待时间。</li>
+                            <li>维护灵活。一个模块出现问题，不会影响到其他模块。单独调试此模块解决问题。</li>
+                            <li>管理方便。升级时粗暴覆盖全目录，不用花很长时间整理更新文件。</li>
+                        </ol>
+                        <h3>5.2 创建</h3>
+                        <p>KantPHP Framework 没有通过Shell或者PHP Cli创建模块的自动化工具。</p>
+                        <p><em>/Application/Module/</em>是模块根目录。<em>/Application/Module/Demo</em> 就代表Demo模块。</p>
+                        <p>如果要创建新的模块，手动创建一个文件夹即可。<small>【文绉绉的说了很多，其实操作太简单。】</small></p>
+                        <p>尽量避免跨模块调用代码。</p>
+                        <p><b class="color-emphasize">为了下文举例方便，假设现在我们创建了一个Blog的模块。</b></p>
+                    </div><!-- /.help-post -->
+                    <div class="help-post" id="mvcpattern">
+                        <div class="page-header">
+                            <h2>6. MVC模式</h2>
+                        </div>
+                        <p>MVC 是一种使用 MVC（Model View Controller 模型-视图-控制器）设计创建 Web 应用程序的模式:</p>
+                        <ol>
+                            <li>Model（模型）表示应用程序核心（比如数据库记录列表）。是应用程序中用于处理应用程序数据逻辑的部分。通常模型对象负责在数据库中存取数据。</li>
+                            <li>View（视图）是应用程序中处理数据显示的部分。通常视图是依据模型数据创建的。</li>
+                            <li>Controller（控制器）是应用程序中处理用户交互的部分。通常控制器负责从视图读取数据，控制用户输入，并向模型发送数据。</li>
+                        </ol>
+                        <p>MVC 分层同时也简化了分组开发。不同的开发人员可同时开发视图、控制器逻辑和业务逻辑。</p>
+                        <p>KantPHP Framework在设计之初就考虑了多库操作，同时考虑到数据库连接数，执行效率等因素，采用了比较严格的MVC模式。控制器或者模板里不能直接数据库datebase，只能通过模型来访问。</p>
+                        <p>优点：维护升级方便，几乎所有的操作都封装在Model中。缺点：多敲代码封装函数，同时新手需要一个适应的过程。</p>
+                    </div><!-- /.help-post -->
+                    <div class="help-post" id="controller">
+                        <div class="page-header">
+                            <h2>7. 定义</h2>
+                        </div>
+                        <p>控制器就是一个类，处理浏览器请求和响应，操作模型，赋值到视图，渲染视图等操作。</p>
+                        <p>用户通过浏览器访问应用，URL发送的请求会通过入口文件生成一个应用实例，应用控制器会管理整个用户执行的过程，并负责模块的调度和动作的执行，并且在最后销毁该应用实例。任何一个URL访问都可以认为是某个模块的某个操作，例如：</p>
+                        <blockquote>
+                            <p>http://localhost/kantphp/blog/list/category/id,8.html</p>
+                            <p>http://localhost/kantphp/blog/detail/index/id,100.html</p>
+                        </blockquote>
+                        <p>系统会根据当前的URL来分析要执行的模块和操作。这个分析工作由URL调度器（Dispatcher）来实现，并且都分析成下面的规范：</p>
+                        <blockquote>
+                            <p>http://域名/项目名/模块名/控制器名/动作名/其他参数/URL后缀</p>
+                            <p>Dispatcher会根据URL地址来获取当前需要执行的项目名、模块名，控制器名，动作名以及其他参数，在某些情况下，项目名可能不会出现在URL地址中。</p>
+                            <p>控制器类名就是控制器名加上Controller后缀，例如ListContoller类就表示了List控制器。而category动作其实就是ListController类的一个公共方法。</p>
+                            <p>所以我们在浏览器里面输入URL：<em>http://localhost/kantphp/blog/list/category/id,8.html</em>其实就是执行了ListControoler类的【category加Action后缀】（公共）方法。</p>
+                        </blockquote>
+                        <h3>7.1 定义</h3>
+                        <p>控制器定义规则为【控制器名+Contrller后缀】，如IndexController。同时要继承BaseController。
+                        <p>在<a href="#module">【5. 模块化开发】</a>中我们已经创建了Blog模块，文件路径是<em>/Application/Moduel/Blog/</em>。现在我们要创建一个IndexController的。进入Blog目录下创建一个Controller文件夹，进入Controoler文件夹，创建文件<em>IndexController.php</em>。内容如下：</p>                      
+                        <blockquote>
+                            <p>class ListController extends BaseController{}</p>
+                            <p></p>
+                        </blockquote></p>
+                        <h3>7.2 空控制器</h3>
+                        <p>如果当前系统找不到指定的控制器，会尝试定位空控制器。我们可以定义错误页面和用户体验的优化。文件名为EmptyController.php。内容如下：</p>
+                        <blockquote>
+                            <p>class EmptyController extends BaseController{}</p>
+                        </blockquote>
+                        <h3>7.3 动作</h3>
+                        <p>控制器可以有多个动作Action，正如一个类可以有多个方法。方法名的定义为【小写的动作名称加Action后缀】，如：</p>
+                        <blockquote>
+                            <ol class="linenums">
+                                <li><code>class ListController extends BaseController{</code><br /></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>public function categoryAction(){}</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>public function orderbydescAction(){}</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>...</code></li>
+                                <li><code>}</code></li>
+                            <p></p>
+                        </blockquote>
+                        <h3>7.4 常用方法</h3>
+                        <p>控制器继承了BaseContorller类和Base类，这两个类的公共方法，动作中均可调用。</p>
+                        <blockquote>
+                            <ol>
+                                <li>处理URL请求的数据。$this->input对象包含的方法。如<em>$this->input->post('id', 'intval'); $this->input->get('username', 'trim');</em></li>
+                                <li>缓存数据。$this->cache对象包含的方法。如<em>$this->cache->set('var', 'hello world); $this->cache->get('var');</em></li>
+                                <li>多语言输出。$this->lang方法。如<em>$this->lang('USERNAME_IS_EMPTY');</em></li>
+                            </ol>
+                        </blockquote>
+
+                    </div>
                 </div>
             </div><!-- /.container -->
 
