@@ -2,10 +2,6 @@
 
 class CookieController extends BaseController {
 
-    public function __construct() {
-        $this->loadCookie();
-    }
-
     public function indexAction() {
         $this->setAction();
     }

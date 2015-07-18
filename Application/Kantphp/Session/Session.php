@@ -61,6 +61,10 @@ final class Session {
         $object = null;
         if (isset($this->_sessionConfig[$sessionName]['type'])) {
             switch ($this->_sessionConfig[$sessionName]['type']) {
+                case 'original':
+                    require_once KANT_PATH . 'Session/Original/SessionOriginal.php';
+                    $object = new SessionOriginal($this->_sessionConfig[$sessionName]);
+                    break;
                 case 'file':
                     require_once KANT_PATH . 'Session/File/SessionFile.php';
                     $object = new SessionFile($this->_sessionConfig[$sessionName]);

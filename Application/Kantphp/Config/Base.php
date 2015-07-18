@@ -26,8 +26,13 @@ return array(
         'cookie_ttl' => 0,
         'auth_key' => 'NMa1FcQBE1HHHd4AQyTV'
     ),
+    'session_handle' => true,
     'session' => array(
         'default' => array(
+            'type' => 'original',
+            'maxlifetime' => 1800,
+        ),
+        'file' => array(
             'type' => 'file',
             'maxlifetime' => 1800,
             'auth_key' => 'NMa1FcQBE1HHHd4AQyTV',

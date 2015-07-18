@@ -29,7 +29,11 @@ return array(
         'auth_key' => 'NMa1FcQBE1HHHd4AQyTV'
     ),
     'session' => array(
-        'default' => array(
+         'default' => array(
+            'type' => 'original',
+            'maxlifetime' => 1800,
+        ),
+        'file' => array(
             'type' => 'file',
             'maxlifetime' => 1800,
             'auth_key' => 'NMa1FcQBE1HHHd4AQyTV',
