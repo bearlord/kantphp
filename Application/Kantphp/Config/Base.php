@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @package KantPHP
+ * @author  Zhenqiang Zhang <565364226@qq.com>
+ * @copyright (c) 2011 - 2013 KantPHP Studio, All rights reserved.
+ * @license http://www.opensource.org/licenses/BSD-3-Clause  The BSD 3-Clause License
+ */
+!defined('IN_KANT') && exit('Access Denied');
 return array(
     'route' => array(
         'module' => 'index',
@@ -26,7 +33,6 @@ return array(
         'cookie_ttl' => 0,
         'auth_key' => 'NMa1FcQBE1HHHd4AQyTV'
     ),
-    'session_handle' => true,
     'session' => array(
         'default' => array(
             'type' => 'original',
@@ -43,6 +49,7 @@ return array(
             'auth_key' => 'NMa1FcQBE1HHHd4AQyTV',
         )),
     'database' => array(
+        //default configuration
         'default' => array(
             'hostname' => 'localhost',
             'port' => '3306',
@@ -56,8 +63,8 @@ return array(
             'persistent' => 0,
             'autoconnect' => 1
         ),
-        //default configuration
-        'default-openshift' => array(
+        //openshift
+        'openshift' => array(
             'hostname' => getenv('OPENSHIFT_MYSQL_DB_HOST'),
             'port' => getenv('OPENSHIFT_MYSQL_DB_PORT'),
             'database' => 'mzqltbruzaqbrsxpalti',
@@ -70,7 +77,8 @@ return array(
             'persistent' => 0,
             'autoconnect' => 1
         ),
-        'pgsql_demo' => array(
+        //postgresql
+        'pgsql' => array(
             'hostname' => 'localhost',
             'port' => '5432',
             'database' => 'bbs',
@@ -83,6 +91,7 @@ return array(
             'persistent' => 0,
             'autoconnect' => 1
         ),
+        //sqlite
         'sqlite' => array(
             'hostname' => '',
             'port' => '',

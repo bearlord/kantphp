@@ -143,29 +143,29 @@
                         <h3>4.3 说明</h3>
                         <blockquote>
                             <p>配置文件以key=>value的数组形式保存</p>
-                            <p><code> 'module' => 'demo' </code>默认的模块Moduel</p>
-                            <p><code> 'ctrl' => 'index', </code>默认的控制器Controller</p>
-                            <p><code> 'act' => 'index', </code>默认的动作Action</p>
-                            <p><code> 'data' => array('GET' => array()), </code>默认的参数Parameter</p>
+                            <p><code> 'module' => 'demo'</code> 默认的模块Moduel</p>
+                            <p><code> 'ctrl' => 'index',</code> 默认的控制器Controller</p>
+                            <p><code> 'act' => 'index',</code> 默认的动作Action</p>
+                            <p><code> 'data' => array('GET' => array()),</code> 默认的参数Parameter</p>
                             <p><code> 'route_rules' => array(
                                     '|topic/id,(\d+)|i' => 'blog/detail/index/id,$1/c,$2'
-                                    ),</code>Rewrite规则，可用正则表达式</p>
-                            <p><code> 'path_info_repair' => false, </code>是否开启Pathinfo修复。如果你的Web服务器不支持Pathinfo，开启此设置。</p>
-                            <p><code> 'debug' => true, </code>是否开启调试模式</p>
-                            <p><code> 'url_suffix' => '.html', </code>URL后缀</p>
-                            <p><code> 'redirect_tpl' => 'dispatch/redirect', </code>页面跳转模板</p>
-                            <p><code> 'lang' => 'zh_CN', </code>默认语言。对应的语言包文件是<em>/Application/Locale/zh_CN/App.php。</em></p>
-                            <p><code> 'charset' => 'utf-8', </code>默认编码</p>
-                            <p><code> 'default_timezone' => 'Etc/GMT-8', </code>默认时区</p>
-                            <p><code> 'database' => array('deault'=>array()...), </code>数据库配置。可配置多个数据库，通过模型Model来操作。</p>
-                            <p><code> 'cookie_domain' => '', </code>Cookie作用域</p>
-                            <p><code> 'cookie_path' => '/', </code>Cookie路径</p>
-                            <p><code> 'cookie_pre' => 'kantphp_', </code>Cookie前缀</p>
-                            <p><code> 'cookie_ttl' => 0, </code>Cookie失效时间</p>
+                                    ),</code> Rewrite规则，可用正则表达式</p>
+                            <p><code> 'path_info_repair' => false,</code> 是否开启Pathinfo修复。如果你的Web服务器不支持Pathinfo，开启此设置。</p>
+                            <p><code> 'debug' => true,</code> 是否开启调试模式</p>
+                            <p><code> 'url_suffix' => '.html',</code> URL后缀</p>
+                            <p><code> 'redirect_tpl' => 'dispatch/redirect',</code> 页面跳转模板</p>
+                            <p><code> 'lang' => 'zh_CN',</code> 默认语言。对应的语言包文件是<em>/Application/Locale/zh_CN/App.php。</em></p>
+                            <p><code> 'charset' => 'utf-8',</code> 默认编码</p>
+                            <p><code> 'default_timezone' => 'Etc/GMT-8',</code> 默认时区</p>
+                            <p><code> 'database' => array('deault'=>array()...),</code> 数据库配置。可配置多个数据库，通过模型Model来操作。</p>
+                            <p><code> 'cookie_domain' => '',</code> Cookie作用域</p>
+                            <p><code> 'cookie_path' => '/',</code> Cookie路径</p>
+                            <p><code> 'cookie_pre' => 'kantphp_',</code> Cookie前缀</p>
+                            <p><code> 'cookie_ttl' => 0,</code> Cookie失效时间</p>
                             <p><code> 'session' => array(
-                                    'default' =>array()...), </code>Session配置。Session可以默认保存，也可以保存到指定路径，数据库等。</p>
+                                    'default' =>array()...),</code> Session配置。Session可以默认保存，也可以保存到指定路径，数据库等。</p>
                             <p><code> 'cache' => array(
-                                    'defalut'=>array()...), </code>缓存配置。选项有文件缓存，Memcache，Redis缓存。</p>
+                                    'defalut'=>array()...),</code> 缓存配置。选项有文件缓存，Memcache，Redis缓存。</p>
                             <p>如果你希望自定义配置，继续写入key=>value键值对。<code></code></p>
                         </blockquote>
                         <h3>4.4 读取配置</h3>
@@ -245,18 +245,46 @@
                                 <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>public function orderbydescAction(){}</code></li>
                                 <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>...</code></li>
                                 <li><code>}</code></li>
-                            <p></p>
+                                <p></p>
                         </blockquote>
                         <h3>7.4 常用方法</h3>
-                        <p>控制器继承了BaseContorller类和Base类，这两个类的公共方法，动作中均可调用。</p>
+                        <p>控制器继承父类BaseContorller类与Base类，父类的公共方法，动作中均可调用。</p>
                         <blockquote>
                             <ol>
-                                <li>处理URL请求的数据。$this->input对象包含的方法。如<em>$this->input->post('id', 'intval'); $this->input->get('username', 'trim');</em></li>
-                                <li>缓存数据。$this->cache对象包含的方法。如<em>$this->cache->set('var', 'hello world); $this->cache->get('var');</em></li>
-                                <li>多语言输出。$this->lang方法。如<em>$this->lang('USERNAME_IS_EMPTY');</em></li>
+                                <li>处理URL请求的数据。$this->input对象包含的方法。如：
+                                    <ol class="linenums">
+                                        <li><code>$id = $this->input->get('id', 'intval', 10);</code> 等同于<br /><code>$id = !empety($_GET['id']) ? intval($_GET['id']) : 10</code> 。</li>
+                                        <li><code>$username = $this->input->post('username', 'trim');</code> 等同于<br /><code>if(!empty($_POST['username'])) {</code><br /><code><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span>$username = trim($_POST['username']); </code><br /><code>} </code>。</li>
+                                    </ol>
+                                <li>缓存数据。$this->cache对象包含的方法。如
+                                    <ol class="linenums">
+                                        <li><code>$this->cache->set('var', 'hello world); </code> 缓存字符串'hello world'，查找的键为'var'。</li>
+                                        <li><code>$this->cache->get('var');</code> 查找键为'var'的缓存内容。</li>
+                                    </ol>
+                                <li>多语言输出。$this->lang方法。如
+                                    <ol class="linenums">
+                                        <li><code>echo $this->lang('USERNAME_IS_EMPTY');</code> 输出项目当前语言【如zh_CN】翻译过的'USERNAME_IS_EMPTY'。翻译的文件位于：<em>/Application/Locale/zh_CN/App.php</em>。如之前已追加过 <code>$LANG['USERNAME_IS_EMPTY'] = '用户名为空！'</code>则会输出【用户名为空！】。如果没有此键值对，则会原样输出【USERNAME_IS_EMPTY】。</li>
+                                        <li>如果想增加其他语言，如英语。新建文件<em>/Application/Locale/en_US/App.php</em>，并在配置文件中更改<code>'lang' => 'en_US'</code>即可</li>
+                                    </ol>
+                                </li>
+                                <li>加载模型。$this->loadModel()方法。如
+                                    <ol class="linenums">
+                                        <li><code>$memberModel = $this->loadModel('Member');</code> 等同于<br /><code>require_once [当前模块]/Model/MemberModel.php;</code><br /><code>$memberModel = new MemberModel();</code></li>
+                                        <li><b>不推荐跨模块加载模型。</b></li>
+                                    </ol>
+                                    
+                                </li>
                             </ol>
                         </blockquote>
-
+                        <h3>7.5 赋值到视图</h3>
+                        <p>要在视图中输出变量，必须在控制器类中把变量传递给视图。用公共属性赋值即可。如：</p>
+                        <blockquote>
+                            <p><code>$this->view->helloString = 'Hello world';</code></p>
+                            <p><code>$this->view->listArray = array(1,3,5,7,9)</code></p>
+                            <p><code>$this->view->infoArray = array('name' => '欢乐的洞主', 'address' => '河南郑州')</code></p>
+                        </blockquote>
+                        <p><b>不推荐传递实例化对象。可在视图中实例化。</b></p>
+                        
                     </div>
                 </div>
             </div><!-- /.container -->
