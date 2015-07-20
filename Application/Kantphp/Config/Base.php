@@ -20,6 +20,8 @@ return array(
     'path_info_repair' => false,
     'debug' => false,
     'url_suffix' => '.html',
+    'theme' => 'default',
+    'template_suffix'=> ".php",
     'action_suffix' => 'Action',
     'redirect_tpl' => 'dispatch/redirect',
     'lang' => 'zh_CN',

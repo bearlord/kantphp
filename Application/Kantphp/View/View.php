@@ -23,6 +23,9 @@ class View extends Base {
      */
     protected $theme = 'default';
     
+    protected $templateSuffix = '.php';
+
+
     /**
      * dispatchInfo
      * 
@@ -40,6 +43,9 @@ class View extends Base {
     public function __construct() {
         parent::__construct();
         $this->dispatchInfo = KantRegistry::get('dispatchInfo');
+        $config = KantRegistry::get('config');
+        $this->theme = $config['theme'];
+        $this->templateSuffix = $config['template_suffix'];
     }
 
     /**
@@ -66,31 +72,18 @@ class View extends Base {
     }
 
     /**
-     * Set theme
-     * 
-     * @param type $theme
-     * @return \View
-     */
-    public function theme($theme) {
-        $this->theme = $theme;
-        return $this;
-    }
-
-    /**
      * Parse template path
      */
     public function parseTemplate($template = '') {
         if (is_file($template)) {
             return $template;
         }
-        if (empty($template)) {
-            $ctrl = strtolower($this->dispatchInfo['ctrl']);
-            $act = strtolower($this->dispatchInfo['act']);
-        } else {
-            list($ctrl, $act) = explode("/", strtolower($template));
-        }
         $tpldir = $this->getTplDir();
-        $tplfile = $tpldir . $ctrl . DIRECTORY_SEPARATOR . $act . '.php';
+        if (empty($template)) {
+            $tplfile = $tpldir . strtolower($this->dispatchInfo['ctrl']) . DIRECTORY_SEPARATOR . strtolower($this->dispatchInfo['act']) . $this->templateSuffix;
+        } else {
+            $tplfile = $tpldir . $template .$this->templateSuffix;
+        }
         if (!file_exists($tplfile)) {
             if ($this->debug) {
                 throw new RuntimeException(sprintf("No template: %s", $tplfile));

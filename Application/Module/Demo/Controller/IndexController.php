@@ -14,7 +14,6 @@ class IndexController extends BaseController {
      */
     public function indexAction() {
         echo "Welcome to KantPHP Framework";
-        
     }
 
     /**
@@ -52,7 +51,21 @@ class IndexController extends BaseController {
         var_dump($_POST);
         var_dump($this->post);
     }
-    
+
+    public function sessionAction() {
+        $_SESSION['hello'] = 'hello world';
+        echo session_id();
+        var_dump($_SESSION);
+    }
+
+    public function runtimeAction() {
+        Runtime::mark('end');
+        $usage = Runtime::calculate();
+        var_dump($usage);
+        $fun = get_defined_functions();
+        print_r($fun['user']);
+    }
+
     public function _empty() {
         echo 'empty';
     }

@@ -56,8 +56,8 @@
                         <li><a href="#module">5.模块化开发</a></li>
                         <li><a href="#mvcpattern">6.MVC模式</a></li>
                         <li><a href="#controller">7.控制器</a></li>
-                        <li><a href="#section-5">8.视图</a></li>
-                        <li><a href="#section-5">9.模型</a></li>
+                        <li><a href="#view">8.视图</a></li>
+                        <li><a href="#model">9.模型</a></li>
                         <li><a href="#cookie">10.Cookie</a></li>
                         <li><a href="#cookie">11.Session</a></li>
                         <li><a href="#cache">12.Cache</a></li>
@@ -209,7 +209,7 @@
                     </div><!-- /.help-post -->
                     <div class="help-post" id="controller">
                         <div class="page-header">
-                            <h2>7. 定义</h2>
+                            <h2>7. 控制器</h2>
                         </div>
                         <p>控制器就是一个类，处理浏览器请求和响应，操作模型，赋值到视图，渲染视图等操作。</p>
                         <p>用户通过浏览器访问应用，URL发送的请求会通过入口文件生成一个应用实例，应用控制器会管理整个用户执行的过程，并负责模块的调度和动作的执行，并且在最后销毁该应用实例。任何一个URL访问都可以认为是某个模块的某个操作，例如：</p>
@@ -256,7 +256,7 @@
                                         <li><code>$id = $this->input->get('id', 'intval', 10);</code> 等同于<br /><code>$id = !empety($_GET['id']) ? intval($_GET['id']) : 10</code> 。</li>
                                         <li><code>$username = $this->input->post('username', 'trim');</code> 等同于<br /><code>if(!empty($_POST['username'])) {</code><br /><code><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span>$username = trim($_POST['username']); </code><br /><code>} </code>。</li>
                                     </ol>
-                                <li>缓存数据。$this->cache对象包含的方法。如
+                                <li>缓存数据。$this->cache对象包含的方法。如：
                                     <ol class="linenums">
                                         <li><code>$this->cache->set('var', 'hello world); </code> 缓存字符串'hello world'，查找的键为'var'。</li>
                                         <li><code>$this->cache->get('var');</code> 查找键为'var'的缓存内容。</li>
@@ -267,13 +267,13 @@
                                         <li>如果想增加其他语言，如英语。新建文件<em>/Application/Locale/en_US/App.php</em>，并在配置文件中更改<code>'lang' => 'en_US'</code>即可</li>
                                     </ol>
                                 </li>
-                                <li>加载模型。$this->loadModel()方法。如
+                                <li>加载模型。$this->loadModel()方法。如：
                                     <ol class="linenums">
                                         <li><code>$memberModel = $this->loadModel('Member');</code> 等同于<br /><code>require_once [当前模块]/Model/MemberModel.php;</code><br /><code>$memberModel = new MemberModel();</code></li>
                                         <li><b>不推荐跨模块加载模型。</b></li>
                                     </ol>
-                                    
                                 </li>
+                                <li>生成URL连接。$this->url()方法。如：</li>
                             </ol>
                         </blockquote>
                         <h3>7.5 赋值到视图</h3>
@@ -281,10 +281,60 @@
                         <blockquote>
                             <p><code>$this->view->helloString = 'Hello world';</code></p>
                             <p><code>$this->view->listArray = array(1,3,5,7,9)</code></p>
-                            <p><code>$this->view->infoArray = array('name' => '欢乐的洞主', 'address' => '河南郑州')</code></p>
+                            <p><code>$this->view->infoArray = array('name' => 'KantPHP', 'address' => '太行山')</code></p>
                         </blockquote>
                         <p><b>不推荐传递实例化对象。可在视图中实例化。</b></p>
-                        
+                    </div>
+                    <div class="help-post" id="view">
+                        <div class="help-header">
+                            <h2>8. 视图</h2>
+                            <p>视图就是模板文件，就是一个网页。控制器把要输出的数据通过模板变量赋值的方式传递到视图类，视图输出内容到浏览器。</p>
+                            <p>一般来说，视图都带有模板引擎。模板引擎把模板的伪代码解析成PHP原生态代码，才可正常运行。为避免重复解析，原生态代码一般写入缓存成文件，触发更新。当目标文件无法写入或者需要间接的写入Memcache/Redis内存曲线保存时，一则影响到效率，二则不适合环境迁移。三是恼人的回调函数问题可轻松通过原生态 PHP 函数解决。</p>
+                            <p>KantPHP Framework不带模板引擎，初衷是为了适应新浪SAE，老版本的百度BAE等代码目录没有写入权限的空间和运行环境。开发者可以修改<em>/Application/Kantphp/View/View.php</em>，自行加载模板引擎。</p>
+                            <h3>8.1 定义</h3>
+                            <p>视图可选择主题，默认的主题是【default】。视图的根目录是/Application/View/default/。如果开发者想更换主题，比如换为【blue】，修改配置文件 <em>'theme' => 'blue'</em>，此时视图的根目录则变为<em>/Application/View/blue</em>。</p>
+                            <p>视图定义规则为：</p>
+                            <blockquote>
+                                <p>视图根目录/模型名/控制器名/动作名/+模板后缀。比如：</p>
+                                <p><em>/Application/View/default/blog/comment/apply.php</em></p>
+                            </blockquote>
+                            <h3>8.2 视图赋值</h3>
+                            <p>视图的数据，需要控制器类把变量传递给视图。通过视图类的公开属性赋值。例如：</p>
+                            <blockquote>
+                                <p>在控制器中：</p>
+                                <p><code>$this->view->hello = 'Hello World';</code></p>
+                                <p><code>$this->view->userInfo = array('name' => '欢乐的洞主', 'address' => '河南郑州');</code></p>
+                                <p>在视图中：</p>
+                                <p><code>echo $hello;</code> 解析后是【'Hello World'】</p>
+                                <p><code>echo $userInfo['name'];  echo $userInfo['address'];</code> 解析后是【欢乐的洞主 河南郑州】</p>
+                            </blockquote>
+                            <h3>8.3 视图输出</h3>
+                            <p>视图变量赋值后，需要调用模板文件来输出相关的变量，视图调用通过display方法来实现。我们在控制的动作方法的最后使用：</p>
+                            <blockquote>
+                                <p><code>$this->view->display();</code> 调用默认视图</p>
+                                <p><code>$this->view->display('list/ajaxpage');</code> 调用指定视图</p>
+                                <p><code>$this->view->display('list/ajaxpage', 'blog');</code> 调用指定模块的指定视图</p>
+                            </blockquote>
+                            <p>就可以输出模板。根据前面的视图定义规则，系统会按照默认规则自动定位视图文件，通常display方法无需带任何参数即可输出对应的视图。</p>
+                            <h3>8.4 获取内容</h3>
+                            <p>如果开发者不想直接输出模板内容，而是存入变量，可以使用fetch方法来获取视图内容</p>
+                            <blockquote>
+                                <p><code>$content = $this->view->fetch();</code></p>
+                                <p>fetch的参数用法和display方法基本一致。</p>
+                            </blockquote>
+                            <h3>8.5 替代控制结构</h3>
+                            <p>视图文件中使用原始 PHP 代码。要使 PHP 代码达到最精简并使其更容易辨认，因此建议你使用 PHP 替代语法控制结构。如</p>
+                            <blockquote>
+                                <p><code><?php echo htmlspecialchars("<?php");?> foreach ($todo as $item): <?php echo htmlspecialchars("?>");?></code></p>
+                                <p><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code><?php echo htmlspecialchars("<?php");?> echo $item; <?php echo htmlspecialchars("?>");?></code></p>
+                                <p><code><?php echo htmlspecialchars("<?php");?> endforeach; <?php echo htmlspecialchars("?>");?></code></p>
+                            </blockquote>
+                        </div>
+                    </div>
+                    <div class="help-post" id="model">
+                        <div class="page-header">
+                            <h2>9 模型</h2>
+                        </div>
                     </div>
                 </div>
             </div><!-- /.container -->
