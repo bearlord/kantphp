@@ -202,9 +202,12 @@ final class Kant {
      * @throws KantException
      */
     protected function dispatchController($controller = '') {
-        $module = isset($this->_dispatchInfo['module']) ? $this->_dispatchInfo['module'] : '';
+        $module = isset($this->_dispatchInfo['module']) ? ucfirst($this->_dispatchInfo['module']) : '';
+        if (empty($module)) {
+            throw new KantException('No Module found');
+        }
         if (empty($controller)) {
-            $controller = $this->_dispatchInfo['ctrl'] . 'Controller';
+            $controller = ucfirst($this->_dispatchInfo['ctrl']) . 'Controller';
         } else {
             $controller = ucfirst($controller) . "Controller";
         }

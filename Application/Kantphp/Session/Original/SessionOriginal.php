@@ -23,6 +23,16 @@ class SessionOriginal {
      * Set Session Module
      */
     private function _setSessionModule() {
+        if (function_exists('session_status')) {
+            if (session_status() == PHP_SESSION_ACTIVE) {
+                return true;
+            }
+        } else {
+            if (isset($_SESSION)) {
+                return true;
+            }
+        }
+
         session_start();
         setcookie(session_name(), session_id(), time() + self::$_setting['maxlifetime'], "/");
     }
