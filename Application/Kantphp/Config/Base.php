@@ -21,7 +21,7 @@ return array(
     'debug' => false,
     'url_suffix' => '.html',
     'theme' => 'default',
-    'template_suffix'=> ".php",
+    'template_suffix' => ".php",
     'action_suffix' => 'Action',
     'redirect_tpl' => 'dispatch/redirect',
     'lang' => 'zh_CN',
@@ -61,7 +61,6 @@ return array(
             'tablepre' => 'kant_',
             'charset' => 'utf8',
             'type' => 'mysql',
-            'debug' => true,
             'persistent' => 0,
             'autoconnect' => 1
         ),
@@ -75,7 +74,6 @@ return array(
             'tablepre' => 'kant_',
             'charset' => 'utf8',
             'type' => 'mysql',
-            'debug' => true,
             'persistent' => 0,
             'autoconnect' => 1
         ),
@@ -89,7 +87,6 @@ return array(
             'tablepre' => 'bbs_',
             'charset' => 'UTF-8',
             'type' => 'pdo_pgsql',
-            'debug' => true,
             'persistent' => 0,
             'autoconnect' => 1
         ),
@@ -103,7 +100,6 @@ return array(
             'tablepre' => 'test_',
             'charset' => 'UTF-8',
             'type' => 'pdo_sqlite',
-            'debug' => true,
             'persistent' => 0,
             'autoconnect' => 1
         )
@@ -134,5 +130,18 @@ return array(
             'port' => 6379
         )
     ),
+    'tags' => array(
+        'app_begin' => array(
+        ),
+        'app_end' => array(
+        ),
+        'path_info' => array(),
+        'action_begin' => array(),
+        'action_end' => array(),
+        'view_begin' => array(),
+        'view_parse' => array(
+        ),
+        'view_end' => array(),
+    )
 );
 

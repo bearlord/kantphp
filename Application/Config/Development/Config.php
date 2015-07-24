@@ -58,7 +58,6 @@ return array(
             'tablepre' => 'kant_',
             'charset' => 'utf8',
             'type' => 'mysql',
-            'debug' => true,
             'persistent' => 0,
             'autoconnect' => 1
         ),
@@ -72,7 +71,6 @@ return array(
             'tablepre' => 'kant_',
             'charset' => 'utf8',
             'type' => 'mysql',
-            'debug' => true,
             'persistent' => 0,
             'autoconnect' => 1
         ),
@@ -85,7 +83,6 @@ return array(
             'tablepre' => 'bbs_',
             'charset' => 'UTF-8',
             'type' => 'pdo_pgsql',
-            'debug' => true,
             'persistent' => 0,
             'autoconnect' => 1
         ),
@@ -98,7 +95,6 @@ return array(
             'tablepre' => 'test_',
             'charset' => 'UTF-8',
             'type' => 'pdo_sqlite',
-            'debug' => true,
             'persistent' => 0,
             'autoconnect' => 1
         )
@@ -130,5 +126,4 @@ return array(
         )
     ),
         )
-//cookie
 ?>

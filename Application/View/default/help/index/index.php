@@ -305,7 +305,7 @@
                                 <p><code>$this->view->hello = 'Hello World';</code></p>
                                 <p><code>$this->view->userInfo = array('name' => '欢乐的洞主', 'address' => '河南郑州');</code></p>
                                 <p>在视图中：</p>
-                                <p><code>echo $hello;</code> 解析后是【'Hello World'】</p>
+                                <p><code>echo $hello;</code> 解析后是【Hello World】</p>
                                 <p><code>echo $userInfo['name'];  echo $userInfo['address'];</code> 解析后是【欢乐的洞主 河南郑州】</p>
                             </blockquote>
                             <h3>8.3 视图输出</h3>

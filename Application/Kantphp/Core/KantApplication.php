@@ -125,31 +125,15 @@ final class Kant {
      * 
      */
     public function boot() {
-        static $tags;
-        static $apptags;
         //default timezone
         date_default_timezone_set(self::$_config['default_timezone']);
         //logfile initialization
-        Log::init(array(
-            'log_path' => LOG_PATH
-        ));
-        if (empty($tags)) {
-            $tags = include KANT_PATH . 'Config/Tags.php';
-            Hook::import($tags);
+        Log::init();
+        Hook::import(self::$_config['tags']);
+        if (self::$_config['debug']) {
+            Runtime::mark('begin');
         }
-        if (empty($apptags)) {
-            $apptags = include CFG_PATH . self::$_environment . DIRECTORY_SEPARATOR . 'Tags.php';
-            Hook::import($apptags);
-        }
-        $this->run();
-    }
-
-    /**
-     * Run
-     */
-    public function run() {
-        Runtime::mark('begin');
-        Hook::listen('app_begin');       
+        Hook::listen('app_begin');
         $this->exec();
         Hook::listen('app_end');
     }
@@ -165,7 +149,6 @@ final class Kant {
             throw new KantException('No dispatch info found');
         }
         $this->bootstrap();
-        $this->bootstrapModule();
         $controller = $this->dispatchController();
         $actionSuffix = self::$_config['action_suffix'];
         $action = isset($this->_dispatchInfo['act']) ? $this->_dispatchInfo['act'] . $actionSuffix : 'Index' . $actionSuffix;
@@ -230,23 +213,6 @@ final class Kant {
     protected function bootstrap() {
         $classname = 'AppBootstrap';
         $filepath = APP_PATH . 'Bootstrap' . DIRECTORY_SEPARATOR . $classname . '.php';
-        if (file_exists($filepath)) {
-            include $filepath;
-            if (method_exists($classname, 'initialize')) {
-                return call_user_func_array(array($classname, 'initialize'), array());
-            }
-        }
-    }
-
-    /**
-     * Bootstrap for module
-     * 
-     * @return boolean
-     */
-    protected function bootstrapModule() {
-        $module = isset($this->_dispatchInfo['module']) ? ucfirst($this->_dispatchInfo['module']) : '';
-        $classname = $module . 'Bootstrap';
-        $filepath = APP_PATH . 'Module' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'Bootstrap' . DIRECTORY_SEPARATOR . $classname . '.php';
         if (file_exists($filepath)) {
             include $filepath;
             if (method_exists($classname, 'initialize')) {
