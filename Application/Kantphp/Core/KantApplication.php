@@ -286,12 +286,12 @@ final class Kant {
      */
     public function setDispatchInfo($dispatchInfo = null) {
         if (null === $dispatchInfo) {
-            $router = Router::getInstance();
-            $router->setUrlSuffix(self::$_config['url_suffix']);
-            $router->add(self::$_config['route_rules']);
-            $router->enableDynamicMatch(true, self::$_config['route']);
             $pathInfo = $this->getPathInfo();
             if (!empty($pathInfo)) {
+                $router = Router::getInstance();
+                $router->setUrlSuffix(self::$_config['url_suffix']);
+                $router->add(self::$_config['route_rules']);
+                $router->enableDynamicMatch(true, self::$_config['route']);
                 $dispatchInfo = $router->match($pathInfo);
                 $_GET = array_merge($_GET, $dispatchInfo);
             } else {
