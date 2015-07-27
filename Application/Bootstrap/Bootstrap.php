@@ -1,6 +1,6 @@
 <?php
 
-class AppBootstrap extends Bootstrap {
+class Bootstrap extends KantBootstrap {
 
     public static function initialize() {
 //		parent::initialize();

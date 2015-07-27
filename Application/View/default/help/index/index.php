@@ -102,22 +102,22 @@
                         </blockquote>
                         <h3>2.2 获取KantPHP Framework</h3>
                         <p>从<a href="https://github.com/bearlord/kantphp/releases" target="_blank">Github</a>获取KantPHP的发行版或者<a href="https://github.com/bearlord/kantphp/">Git Clone</a>最新版，解压并复制到WEB服务器根目录，如/srv/www/htdocs/kantphp，并赋予目录kantphp写权限和可执行权限。如果是开发环境，粗暴的设置为 <em>0777</em> 是不错的选择。我们会在后续署章节中再讨论权限。</p>
-                        <p>打开浏览器，输入<em>http://localhost/kantphp/</em>，如果你见到页面上显示：</p>
+                        <p>打开浏览器，输入<em>http://www.kantphp.com/kantphp/</em>，如果你见到页面上显示：</p>
                         <blockquote>
                             <p>Welcome to KantPHP Framework</p>
                         </blockquote>
                         <p>说明开发环境配置成功。</p>
                         <p>你可以继续浏览 </p>
                         <blockquote>
-                            <p><em>http://localhost/kantphp/demo/index/display</em></p>
-                            <p><em>http://localhost/kantphp/demo/index/displayfunc</em></p>
-                            <p><em>http://localhost/kantphp/demo/index/get/var,abc</em></p>
-                            <p><em>http://localhost/kantphp/demo/index/get/var,abc.html</em></p>
+                            <p><em>http://www.kantphp.com/kantphp/demo/index/display</em></p>
+                            <p><em>http://www.kantphp.com/kantphp/demo/index/displayfunc</em></p>
+                            <p><em>http://www.kantphp.com/kantphp/demo/index/get/var,abc</em></p>
+                            <p><em>http://www.kantphp.com/kantphp/demo/index/get/var,abc.html</em></p>
                         </blockquote>
-                        <p><em>http://localhost/kantphp</em>是网站的根目录，<em>demo/index/get/var,foo.html</em>则是参数，demo是Moduel Name,index是Controller Name,get是Action Name。var,abc等同&var=abc，是parse_url的query部分。html表示一个网页的后缀，可有可无。</p>
+                        <p><em>http://www.kantphp.com/kantphp</em>是网站的根目录，<em>demo/index/get/var,foo.html</em>则是参数，demo是Moduel Name,index是Controller Name,get是Action Name。var,abc等同&var=abc，是parse_url的query部分。html表示一个网页的后缀，可有可无。</p>
                         <p>一个完整的URL访问规则是：</p>
                         <blockquote>
-                            <p>http://localhost/kantphp/[模型名称]/[控制器名称]/[操作名称]/[参数名,参数值]/...[.html]</p>
+                            <p>http://www.kantphp.com/kantphp/[模型名称]/[控制器名称]/[操作名称]/[参数名,参数值]/...[.html]</p>
                         </blockquote>
                     </div><!-- /.help-post -->
                     <div class="help-post" id="schema">
@@ -214,15 +214,15 @@
                         <p>控制器就是一个类，处理浏览器请求和响应，操作模型，赋值到视图，渲染视图等操作。</p>
                         <p>用户通过浏览器访问应用，URL发送的请求会通过入口文件生成一个应用实例，应用控制器会管理整个用户执行的过程，并负责模块的调度和动作的执行，并且在最后销毁该应用实例。任何一个URL访问都可以认为是某个模块的某个操作，例如：</p>
                         <blockquote>
-                            <p>http://localhost/kantphp/blog/list/category/id,8.html</p>
-                            <p>http://localhost/kantphp/blog/detail/index/id,100.html</p>
+                            <p>http://www.kantphp.com/kantphp/blog/list/category/id,8.html</p>
+                            <p>http://www.kantphp.com/kantphp/blog/detail/index/id,100.html</p>
                         </blockquote>
                         <p>系统会根据当前的URL来分析要执行的模块和操作。这个分析工作由URL调度器（Dispatcher）来实现，并且都分析成下面的规范：</p>
                         <blockquote>
                             <p>http://域名/项目名/模块名/控制器名/动作名/其他参数/URL后缀</p>
                             <p>Dispatcher会根据URL地址来获取当前需要执行的项目名、模块名，控制器名，动作名以及其他参数，在某些情况下，项目名可能不会出现在URL地址中。</p>
                             <p>控制器类名就是控制器名加上Controller后缀，例如ListContoller类就表示了List控制器。而category动作其实就是ListController类的一个公共方法。</p>
-                            <p>所以我们在浏览器里面输入URL：<em>http://localhost/kantphp/blog/list/category/id,8.html</em>其实就是执行了ListControoler类的【category加Action后缀】（公共）方法。</p>
+                            <p>所以我们在浏览器里面输入URL：<em>http://www.kantphp.com/kantphp/blog/list/category/id,8.html</em>其实就是执行了ListControoler类的【category加Action后缀】（公共）方法。</p>
                         </blockquote>
                         <h3>7.1 定义</h3>
                         <p>控制器定义规则为【控制器名+Contrller后缀】，如IndexController。同时要继承BaseController。
@@ -245,7 +245,7 @@
                                 <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>public function orderbydescAction(){}</code></li>
                                 <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>...</code></li>
                                 <li><code>}</code></li>
-                                <p></p>
+                            </ol>
                         </blockquote>
                         <h3>7.4 常用方法</h3>
                         <p>控制器继承父类BaseContorller类与Base类，父类的公共方法，动作中均可调用。</p>
@@ -305,7 +305,7 @@
                                 <p><code>$this->view->hello = 'Hello World';</code></p>
                                 <p><code>$this->view->userInfo = array('name' => '欢乐的洞主', 'address' => '河南郑州');</code></p>
                                 <p>在视图中：</p>
-                                <p><code>echo $hello;</code> 解析后是【Hello World】</p>
+                                <p><code>echo $hello;</code> 解析后是【'Hello World'】</p>
                                 <p><code>echo $userInfo['name'];  echo $userInfo['address'];</code> 解析后是【欢乐的洞主 河南郑州】</p>
                             </blockquote>
                             <h3>8.3 视图输出</h3>
@@ -325,9 +325,9 @@
                             <h3>8.5 替代控制结构</h3>
                             <p>视图文件中使用原始 PHP 代码。要使 PHP 代码达到最精简并使其更容易辨认，因此建议你使用 PHP 替代语法控制结构。如</p>
                             <blockquote>
-                                <p><code><?php echo htmlspecialchars("<?php");?> foreach ($todo as $item): <?php echo htmlspecialchars("?>");?></code></p>
-                                <p><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code><?php echo htmlspecialchars("<?php");?> echo $item; <?php echo htmlspecialchars("?>");?></code></p>
-                                <p><code><?php echo htmlspecialchars("<?php");?> endforeach; <?php echo htmlspecialchars("?>");?></code></p>
+                                <p><code><?php echo htmlspecialchars("<?php"); ?> foreach ($todo as $item): <?php echo htmlspecialchars("?>"); ?></code></p>
+                                <p><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code><?php echo htmlspecialchars("<?php"); ?> echo $item; <?php echo htmlspecialchars("?>"); ?></code></p>
+                                <p><code><?php echo htmlspecialchars("<?php"); ?> endforeach; <?php echo htmlspecialchars("?>"); ?></code></p>
                             </blockquote>
                         </div>
                     </div>
@@ -335,6 +335,90 @@
                         <div class="page-header">
                             <h2>9 模型</h2>
                         </div>
+                        <p>是的，模型也是一个类，是用于处理应用程序数据逻辑的部分，通常负责数据库的存取操作。KantPHP Framework在基础 Model 类中完成了基本的CURD、ActiveRecord模式、连贯操作和统计查询。</p>
+                        <h3>9.1 定义</h3>
+                        <p>模型定义规则为【模型名+Model后缀】，如CategoryModel。同时要继承BaseModel。</p>
+                        <p>回顾之前的操作，在<a href="#module">【5. 模块化开发】</a>中我们已经创建了Blog模块，在<a href="#controller">【7. 控制器】</a>中我们创建了一个控制器。文件路径是<em>/Application/Moduel/Blog/Controller/IndexControoler.php</em>。</p>
+                        <p>现在我们创建一个CategoyModel。文件路径是：<em>/Application/Moduel/Blog/Model/CategoryModel.php</em>。内容如下：</p>
+                        <blockquote>
+                            <ol class="linenums">
+                                <li><code>class Cateogyr extends BaseModel{</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>protected $table = 'category;</code> 每个模型应对应一个主表，表名称排除表前缀部分。</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>protected $primary = 'id';</code> 每个主表应有一个主键</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>...</code></li>
+                                <li><code>}</code></li>
+                            </ol>
+                        </blockquote>
+                        <p><b>只有在模型里指定了$table，才能在实例化模型后，操作数据表。</b></p>
+                        <h3>9.1 模型实例化</h3>
+                        <p>模型实例化也就是实例化一个类，原理无非是include class; new class。KantPHP Framework封装了 loadModel 方法简化了这两个步骤。如：</p>
+                        <blockquote>
+                            <p><code>$CategoryMdoel = $this->loadModel('Category')</code> 等同于：</p>
+                            <p><code>include [...]/Module/Blog/Model/CategoryModel.php; $CategoryModel = new CategoryModel();</code></p>
+                            <p><b>注意：KantPHP Framework底层中有根据类别名映射进行的自动加载，但加载应用模型需要人工加载。直接<code>$CategoryModel = new CategoryModel();</code>会报错找不到指定文件。</b></p>
+                            <p>为执行效率着想，<code>$CategoryMdoel = $this->loadModel('Category');</code> 已经把实例化的CategoryModel缓存静态变量。在单次的进程【粗略的理解为本次浏览器请求】中，再次调用$this->loadModel('Category')会直接读取静态变量，不用再实例化模型。</p>
+                            <p>loadModel是基类方法，可以在控制器和模型中使用。</p>
+                        </blockquote>
+                        <h3>9.2 连接数据库</h3>
+                        <p>KantPHP Framework内置了抽象数据库访问层，把不同的数据库操作封装起来，开发者只需要使用公共的Db类进行操作，而无需针对不同的数据库写不同的代码和底层实现，Db类会自动调用相应的数据库驱动来处理。目前的数据库包括PostgreSQL,MySQL、SqLite，包含了对PDO的支持。使用数据库，必须配置数据库连接信息。</p>
+                        <p>虽然数据库信息写在模型里也可以成功运行，但为项目部署方便，也为协同开发着想，强烈建议都写在配置文件。模型里指定不同的适配器，即可成功连接数据库。下面举例说明连接两个数据库的例子。</p>
+                        <blockquote>
+                            <ol class="linenums">
+                                <li><code>'database' => array(</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'default' => array(</code> 默认适配器</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'hostname' => '192.168.1.111',</code> 主机名</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'port' => '5432',</code> 端口号</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'database' => 'kant_bbs',</code> 数据库名</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'username' => 'root',</code> 用户名</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'password' => 'root',</code> 密码</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'tablepre' => 'kant_',</code> 表前缀</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'charset' => 'UTF-8',</code> 字符集</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code> 'type' => 'pdo_pgsql',</code> 数据库驱动类型</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'debug' => true,</code> 是否开启调试</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'persistent' => 0,</code> 是否长连接</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'autoconnect' => 1</code> 是否自动连接,为1是才连接数据库</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>}，</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'mysql_adapter' => array(</code> MySql适配器</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code> 'hostname' => '192.168.1.112',</code> 主机名</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'port' => '3306',</code> 端口号</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'database' => 'kant_member',</code> 数据库名</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'username' => 'root',</code> 用户名</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'password' => 'root',</code> 密码</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'tablepre' => 'kant_',</code> 表前缀</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'charset' => 'UTF-8',</code> 字符集</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code> 'type' => 'mysql',</code> 数据库驱动类型</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'debug' => true,</code> 是否开启调试</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'persistent' => 0,</code> 是否长连接</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'autoconnect' => 1</code> 是否自动连接,为1是才连接数据库</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>}，</code></li>
+                                <li><code>}，</code></li>
+                            </ol>
+                        </blockquote>
+                        <p>配置文件中有关数据库设置如上所示。如果希望在CategoryModel中连接【默认适配器】， 而在MemberModel中连接【MySql适配器】,只需要在指定<code>protected $adapter = 'default'; </code>或者<code>protected $adapter = 'mysql_adapter';</code>即可。因默认适配器已设为【default】，所以不指定适配器即表示用默认适配器连接。【又一大段文绉绉的话。通俗点讲，配置文件database写两个数据库配置，模型里指定 $adapter 调用哪一个。】</p>
+                        <h3>9.3 创建数据</h3>
+                        <p>控制器接受表单请求，并把数据存入数据库。这一过程一般在控制器的动作方法中实现。如：</p>
+                        <blockquote>
+                            <p><code>$data = array('category_tile' => 'Unix/Linux运维', 'category_description' => '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179');</code> key值要与数据表字段名一致</p>
+                            <p><code>$CategoryModel = $this->loadModel('category');</code></p>
+                            <p><code>$row = $CategoryModel->save($data);</code></p>
+                            <p>解析后的SQL为：</p>
+                            <p><code>INSERT INTO kant_category ('category_tile', 'category_description') VALUES ('Unix/Linux运维',  '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179');</code></p>
+                            <p>返回值$row为数据表主键最后插入的id或是最后一个序列。MySQL、SqLite为前者，PostgreSQl为后者。如果 $row 为真，说明保存数据成功。</p>
+                        </blockquote>
+                        <h3>9.4 更新数据</h3>
+                        <p>更新数据与创建数据类似，加入查询条件即可。</p>
+                        <blockquote>
+                            <p><code>$data = array('category_tile' => 'Unix/Linux运维', 'category_description' => '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179');</code> key值要与数据表字段名一致</p>
+                            <p><code>$CategoryModel = $this->loadModel('category');</code></p>
+                            <p><code>$row = $CategoryModel->save($data, array('category_id' => 103));</code></p>
+                            <p>解析后的SQL为：</p>
+                            <p><code>UPDATE kant_category SET category_tile = 'Unix/Linux运维', category_description = '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179' WHERE category_id = 103</code></p>
+                            <p>返回值$row为 UPDATE SQL 的执行结果,而不是影响的行数。true为成功，false为失败。</p>
+                        </blockquote>
+                        <h3>9.5 删除数据</h3>
+                        <blockquote>
+                            <p></p>
+                        </blockquote>
                     </div>
                 </div>
             </div><!-- /.container -->

@@ -28,7 +28,7 @@ final class Kant {
         'Runtime' => 'Runtime/Runtime.php',
         'Log' => 'Log/Log.php',
         'Hook' => 'Hook/Hook.php',
-        'Bootstrap' => 'Bootstrap/Bootstrap.php',
+        'KantBootstrap' => 'Bootstrap/KantBootstrap.php',
         'Widget' => 'Widget/Widget.php'
     );
     private static $_environment = 'Development';
@@ -211,30 +211,13 @@ final class Kant {
      * @return boolean|array
      */
     protected function bootstrap() {
-        $classname = 'AppBootstrap';
+        $classname = 'Bootstrap';
         $filepath = APP_PATH . 'Bootstrap' . DIRECTORY_SEPARATOR . $classname . '.php';
         if (file_exists($filepath)) {
             include $filepath;
             if (method_exists($classname, 'initialize')) {
-                return call_user_func_array(array($classname, 'initialize'), array());
+                return call_user_func(array($classname, 'initialize'));
             }
-        }
-    }
-
-    /**
-     * Load core class
-     * 
-     * @param type $className
-     * @param type $dir
-     * @return boolean
-     */
-    public static function loadCoreClass($className, $dir = '') {
-        if (class_exists($className, false) || interface_exists($className, false)) {
-            return true;
-        }
-        if (isset(self::$_autoCoreClass[$className])) {
-            require_once KANT_PATH . self::$_autoCoreClass[$className];
-            return true;
         }
     }
 
@@ -342,6 +325,23 @@ final class Kant {
     public function dispatch() {
         if (!$this->getDispatchInfo()) {
             throw new KantException('No dispatch info found');
+        }
+    }
+
+    /**
+     * Load core class
+     * 
+     * @param type $className
+     * @param type $dir
+     * @return boolean
+     */
+    public static function loadCoreClass($className, $dir = '') {
+        if (class_exists($className, false) || interface_exists($className, false)) {
+            return true;
+        }
+        if (isset(self::$_autoCoreClass[$className])) {
+            require_once KANT_PATH . self::$_autoCoreClass[$className];
+            return true;
         }
     }
 

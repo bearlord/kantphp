@@ -1,6 +1,6 @@
 <?php
 
-abstract class Bootstrap extends Base {
+abstract class KantBootstrap extends Base {
 
     public static function initialize() {
         
