@@ -6,7 +6,7 @@ class MysqlController extends BaseController {
 
     public function __construct() {
         parent::__construct();
-        $this->mdM = $this->loadModel("MysqlDemo");
+        $this->mdM = $this->model("MysqlDemo");
     }
 
     /**
@@ -44,7 +44,7 @@ class MysqlController extends BaseController {
         //获取数据
         //pagelist参数分别为select,where,orderby,NowPage,PerNum
         $data = $this->mdM->pageList("", "", "", $page, $perNum);
-        $this->loadLib("Page");
+        $this->library("Page");
         $pageObj = new Page($data[1], $perNum);
         $pages = $pageObj->show();
         $this->view->result = $data[0];

@@ -71,7 +71,7 @@ class Base {
      * @param integer $initialize
      * @return
      */
-    public function loadLib($classname, $initialize = 0) {
+    public function library($classname, $initialize = 0) {
         static $classes = array();
         $filepath = APP_PATH . 'Libary' . DIRECTORY_SEPARATOR . $classname . '.php';
         $key = md5($classname);
@@ -90,9 +90,7 @@ class Base {
                 $classes[$key] = true;
             }
             return $classes[$key];
-        } else {
-            return false;
-        }
+        } 
     }
 
     /**
@@ -102,7 +100,7 @@ class Base {
      * @param classname string
      * @param initialize integer[0,1]
      */
-    public function loadModel($classname, $initialize = 1, $module = '') {
+    public function model($classname, $initialize = 1, $module = '') {
         static $classes = array();
         if ($module == '') {
             $dispatchInfo = KantRegistry::get('dispatchInfo');
@@ -130,8 +128,6 @@ class Base {
                 $classes[$key] = true;
             }
             return $classes[$key];
-        } else {
-            return false;
         }
     }
 

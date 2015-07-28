@@ -14,7 +14,8 @@ final class Kant {
 
     private static $_instance = null;
     private static $_autoCoreClass = array(
-        'Router' => 'Core/KantRouter.php',
+        'KantRouter' => 'Core/KantRouter.php',
+        'KantDispatch' => 'Core/KantDispatch.php',
         'KantConfig' => 'Config/KantConfig.php',
         'KantRegistry' => 'Core/KantRegistry.php',
         'KantException' => 'Core/KantException.php',
@@ -145,23 +146,16 @@ final class Kant {
      * @throws ReflectionException
      */
     public function exec() {
-        if (!$this->getDispatchInfo()) {
-            throw new KantException('No dispatch info found');
-        }
+        $this->_dispatchInfo = KantDispatch::getInstance()->getDispatchInfo();
         $this->bootstrap();
-        $controller = $this->dispatchController();
-        $actionSuffix = self::$_config['action_suffix'];
-        $action = isset($this->_dispatchInfo['act']) ? $this->_dispatchInfo['act'] . $actionSuffix : 'Index' . $actionSuffix;
+        $controller = $this->controller();
         if (!$controller) {
-            $controller = $this->dispatchController('empty');
+            $controller = $this->controller('empty');
             if (empty($controller)) {
-                if (self::$_config['debug']) {
-                    throw new KantException(sprintf("No controller exists:%s", ucfirst($this->_dispatchInfo['ctrl']) . 'Controller'));
-                } else {
-                    $this->redirect($this->lang('no_controller'));
-                }
+                throw new KantException(sprintf("No controller exists:%s", ucfirst($this->_dispatchInfo['ctrl']) . 'Controller'));
             }
         }
+        $action = isset($this->_dispatchInfo['act']) ? $this->_dispatchInfo['act'] . self::$_config['action_suffix'] : 'Index' . self::$_config['action_suffix'];
         try {
             if (!preg_match('/^[A-Za-z](\w)*$/', $action)) {
                 throw new ReflectionException();
@@ -184,7 +178,7 @@ final class Kant {
      * @return boolean|array|\classname
      * @throws KantException
      */
-    protected function dispatchController($controller = '') {
+    protected function controller($controller = '') {
         $module = isset($this->_dispatchInfo['module']) ? ucfirst($this->_dispatchInfo['module']) : '';
         if (empty($module)) {
             throw new KantException('No Module found');
@@ -218,113 +212,6 @@ final class Kant {
             if (method_exists($classname, 'initialize')) {
                 return call_user_func(array($classname, 'initialize'));
             }
-        }
-    }
-
-    /**
-     * Set path info
-     *
-     * @param string $pathinfo
-     * @return Cola
-     */
-    public function setPathInfo($pathinfo = null) {
-        if (null === $pathinfo) {
-            if (self::$_config['path_info_repair'] == false) {
-                $pathinfo = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '';
-                $pathinfo = str_replace(self::$_config['url_suffix'], '', $pathinfo);
-            } else {
-                foreach (array('REQUEST_URI', 'HTTP_X_REWRITE_URL', 'argv') as $var) {
-                    if ($requestUri = $_SERVER[$var]) {
-                        if ($var == 'argv') {
-                            $requestUri = strtolower($requestUri[0]);
-                        }
-                        break;
-                    }
-                }
-                $requestUri = str_replace(self::$_config['url_suffix'], '', ltrim($requestUri, '/'));
-                $scriptName = strtolower(ltrim(dirname($_SERVER['SCRIPT_NAME']), '/'));
-                //url as [/index.php?module=demo&ctrl=index&act=index] or [/index.php/demo/index/index]
-                if (strpos($requestUri, "index.php") !== false) {
-                    $parse = parse_url($requestUri);
-                    //url as [/index.php?module=demo&ctrl=index&act=index] 
-                    if (!empty($parse['query']) && strpos($parse['query'], 'module') !== false) {
-                        $pathinfo = "";
-                    } else {
-                        //url as [/index.php/demo/index/index]
-                        $pathinfo = ltrim(str_replace($scriptName, '', $requestUri));
-                        if (strpos($pathinfo, "index.php/") !== false) {
-                            $pathinfo = str_replace("index.php/", "", $pathinfo);
-                        }
-                    }
-                } else {
-                    //url as [/demo/index/index]
-                    $pathinfo = ltrim(str_replace($scriptName, '', $requestUri));
-                }
-            }
-        }
-        $this->_pathInfo = $pathinfo;
-        return $this;
-    }
-
-    /**
-     * Get path info
-     *
-     * @return string
-     */
-    public function getPathInfo() {
-        if (null === $this->_pathInfo) {
-            $this->setPathInfo();
-        }
-        return $this->_pathInfo;
-    }
-
-    /**
-     * Set dispatch info
-     *
-     * @param array $dispatchInfo
-     * @return Cola
-     */
-    public function setDispatchInfo($dispatchInfo = null) {
-        if (null === $dispatchInfo) {
-            $pathInfo = $this->getPathInfo();
-            if (!empty($pathInfo)) {
-                $router = Router::getInstance();
-                $router->setUrlSuffix(self::$_config['url_suffix']);
-                $router->add(self::$_config['route_rules']);
-                $router->enableDynamicMatch(true, self::$_config['route']);
-                $dispatchInfo = $router->match($pathInfo);
-                $_GET = array_merge($_GET, $dispatchInfo);
-            } else {
-                $dispatchInfo['module'] = empty($_GET['module']) ? self::$_config['route']['module'] : $_GET['module'];
-                $dispatchInfo['ctrl'] = empty($_GET['ctrl']) ? self::$_config['route']['ctrl'] : $_GET['ctrl'];
-                $dispatchInfo['act'] = empty($_GET['act']) ? self::$_config['route']['act'] : $_GET['act'];
-                $merge = array_merge($_GET, $dispatchInfo);
-                $dispatchInfo = $_GET = $merge;
-            }
-            KantRegistry::set('dispatchInfo', $dispatchInfo);
-        }
-        $this->_dispatchInfo = $dispatchInfo;
-        return $this;
-    }
-
-    /**
-     * Get dispatch info
-     *
-     * @return array
-     */
-    public function getDispatchInfo() {
-        if (null === $this->_dispatchInfo) {
-            $this->setDispatchInfo();
-        }
-        return $this->_dispatchInfo;
-    }
-
-    /**
-     * Dispatch
-     */
-    public function dispatch() {
-        if (!$this->getDispatchInfo()) {
-            throw new KantException('No dispatch info found');
         }
     }
 

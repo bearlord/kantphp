@@ -32,7 +32,6 @@ class SessionOriginal {
                 return true;
             }
         }
-
         session_start();
         setcookie(session_name(), session_id(), time() + self::$_setting['maxlifetime'], "/");
     }

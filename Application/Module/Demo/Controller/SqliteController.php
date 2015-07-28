@@ -5,7 +5,7 @@ class SqliteController extends BaseController {
     protected $dM;
 
     public function __construct() {
-        $this->dM = $this->loadModel("SqliteDemo");
+        $this->dM = $this->model("SqliteDemo");
     }
 
     public function IndexAction() {
