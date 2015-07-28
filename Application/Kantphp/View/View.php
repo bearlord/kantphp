@@ -74,14 +74,14 @@ class View extends Base {
         if (is_file($template)) {
             return $template;
         }
+        $config = KantRegistry::get('config');
         $tpldir = $this->getTplDir();
         if (empty($template)) {
-            $tplfile = $tpldir . strtolower($this->dispatchInfo['ctrl']) . DIRECTORY_SEPARATOR . strtolower($this->dispatchInfo['act']) . $this->templateSuffix;
+            $tplfile = $tpldir . strtolower($this->dispatchInfo['ctrl']) . DIRECTORY_SEPARATOR . strtolower($this->dispatchInfo['act']) . $config['template_suffix'];
         } else {
             $tplfile = $tpldir . $template . $this->templateSuffix;
         }
-        if (!file_exists($tplfile)) {
-            $config = KantRegistry::get('config');
+        if (!file_exists($tplfile)) {       
             if ($config['debug']) {
                 throw new RuntimeException(sprintf("No template: %s", $tplfile));
             } else {

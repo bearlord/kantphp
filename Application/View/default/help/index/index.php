@@ -267,9 +267,9 @@
                                         <li>如果想增加其他语言，如英语。新建文件<em>/Application/Locale/en_US/App.php</em>，并在配置文件中更改<code>'lang' => 'en_US'</code>即可</li>
                                     </ol>
                                 </li>
-                                <li>加载模型。$this->loadModel()方法。如：
+                                <li>加载模型。$this->model()方法。如：
                                     <ol class="linenums">
-                                        <li><code>$memberModel = $this->loadModel('Member');</code> 等同于<br /><code>require_once [当前模块]/Model/MemberModel.php;</code><br /><code>$memberModel = new MemberModel();</code></li>
+                                        <li><code>$memberModel = $this->model('Member');</code> 等同于<br /><code>require_once [当前模块]/Model/MemberModel.php;</code><br /><code>$memberModel = new MemberModel();</code></li>
                                         <li><b>不推荐跨模块加载模型。</b></li>
                                     </ol>
                                 </li>
@@ -351,13 +351,13 @@
                         </blockquote>
                         <p><b>只有在模型里指定了$table，才能在实例化模型后，操作数据表。</b></p>
                         <h3>9.1 模型实例化</h3>
-                        <p>模型实例化也就是实例化一个类，原理无非是include class; new class。KantPHP Framework封装了 loadModel 方法简化了这两个步骤。如：</p>
+                        <p>模型实例化也就是实例化一个类，原理无非是include class; new class。KantPHP Framework封装了 model 方法简化了这两个步骤。如：</p>
                         <blockquote>
-                            <p><code>$CategoryMdoel = $this->loadModel('Category')</code> 等同于：</p>
+                            <p><code>$CategoryMdoel = $this->model('Category')</code> 等同于：</p>
                             <p><code>include [...]/Module/Blog/Model/CategoryModel.php; $CategoryModel = new CategoryModel();</code></p>
                             <p><b>注意：KantPHP Framework底层中有根据类别名映射进行的自动加载，但加载应用模型需要人工加载。直接<code>$CategoryModel = new CategoryModel();</code>会报错找不到指定文件。</b></p>
-                            <p>为执行效率着想，<code>$CategoryMdoel = $this->loadModel('Category');</code> 已经把实例化的CategoryModel缓存静态变量。在单次的进程【粗略的理解为本次浏览器请求】中，再次调用$this->loadModel('Category')会直接读取静态变量，不用再实例化模型。</p>
-                            <p>loadModel是基类方法，可以在控制器和模型中使用。</p>
+                            <p>为执行效率着想，<code>$CategoryMdoel = $this->model('Category');</code> 已经把实例化的CategoryModel缓存静态变量。在单次的进程【粗略的理解为本次浏览器请求】中，再次调用$this->model('Category')会直接读取静态变量，不用再实例化模型。</p>
+                            <p>model是基类方法，可以在控制器和模型中使用。</p>
                         </blockquote>
                         <h3>9.2 连接数据库</h3>
                         <p>KantPHP Framework内置了抽象数据库访问层，把不同的数据库操作封装起来，开发者只需要使用公共的Db类进行操作，而无需针对不同的数据库写不同的代码和底层实现，Db类会自动调用相应的数据库驱动来处理。目前的数据库包括PostgreSQL,MySQL、SqLite，包含了对PDO的支持。使用数据库，必须配置数据库连接信息。</p>
@@ -399,26 +399,52 @@
                         <p>控制器接受表单请求，并把数据存入数据库。这一过程一般在控制器的动作方法中实现。如：</p>
                         <blockquote>
                             <p><code>$data = array('category_tile' => 'Unix/Linux运维', 'category_description' => '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179');</code> key值要与数据表字段名一致</p>
-                            <p><code>$CategoryModel = $this->loadModel('category');</code></p>
+                            <p><code>$CategoryModel = $this->model('category');</code></p>
                             <p><code>$row = $CategoryModel->save($data);</code></p>
                             <p>解析后的SQL为：</p>
                             <p><code>INSERT INTO kant_category ('category_tile', 'category_description') VALUES ('Unix/Linux运维',  '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179');</code></p>
                             <p>返回值$row为数据表主键最后插入的id或是最后一个序列。MySQL、SqLite为前者，PostgreSQl为后者。如果 $row 为真，说明保存数据成功。</p>
                         </blockquote>
-                        <h3>9.4 更新数据</h3>
+                        <h3>9.4 读取数据</h3>
+                        <p>读取数据用 read 和 readAll 方法， 例子如下：</p>
+                        <blockquote>
+                            <p>1. read 方法</p>
+                            <p><code>$CategoryModel = $this->model('category');</code></p>
+                            <p><code>$row = $CategoryModel->read("category_title, category_description", "", 103);</code> 或者</p>
+                            <p><code>$row = $CategoryModel->read("category_title, category_description", "category_id", 103);</code> 或者</p>
+                            <p><code>$row = $CategoryModel->read("category_title, category_description", array('category_id' => 103));</code></p>
+                            <p>解析后的SQL为：</p>
+                            <p><code>SELECT category_title, category_description FROM kant_category WHERE category_id = 103</code></p>
+                            <p>返回值 $row 为结果集。如果为空则为false</p>
+                            <p>2. readAll 方法</p>
+                            <p><code>$CategoryModel = $this->model('category');</code></p>
+                            <p><code>$row = $CategoryModel->readAll("category_title, category_description", "category_id ASC");</code></p>
+                            <p>解析后的SQL为：</p>
+                            <p><code>SELECT category_title, category_description FROM kant_category ORDER BY category_id ASC</code></p>
+                            <p>返回值 $row 为结果集。如果为空则为false</p>
+                        </blockquote>
+                        <h3>9.5 更新数据</h3>
                         <p>更新数据与创建数据类似，加入查询条件即可。</p>
                         <blockquote>
                             <p><code>$data = array('category_tile' => 'Unix/Linux运维', 'category_description' => '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179');</code> key值要与数据表字段名一致</p>
-                            <p><code>$CategoryModel = $this->loadModel('category');</code></p>
-                            <p><code>$row = $CategoryModel->save($data, array('category_id' => 103));</code></p>
+                            <p><code>$CategoryModel = $this->model('category');</code></p>
+                            <p><code>$row = $CategoryModel->save($data, array('category_id' => 103));</code> 或者</p>
+                            <p><code>$row = $CategoryModel->save($data, 103);</code> 第二个参数为模型的主键对应值。</p>
                             <p>解析后的SQL为：</p>
                             <p><code>UPDATE kant_category SET category_tile = 'Unix/Linux运维', category_description = '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179' WHERE category_id = 103</code></p>
                             <p>返回值$row为 UPDATE SQL 的执行结果,而不是影响的行数。true为成功，false为失败。</p>
                         </blockquote>
-                        <h3>9.5 删除数据</h3>
+                        <h3>9.6 删除数据</h3>
+                        <p>删除数据的例子如下：</p>
                         <blockquote>
-                            <p></p>
+                            <p><code>$CategoryModel = $this->model('category');</code></p>
+                            <p><code>$row = $CategoryModel->delete(array('category_id' => 103));</code> 或者</p>
+                            <p><code>$row = $CategoryModel->delete(103);</code> 第二个参数为模型的主键对应值。</p>
+                            <p>解析后的SQL为：</p>
+                            <p><code>DELETE FROM kant_category SET WHERE category_id = 103</code></p>
+                            <p>返回值$row为 DELETE SQL 的执行结果。true为成功，false为失败。</p>
                         </blockquote>
+                        <h3>9.7 复杂的CURD操作</h3>
                     </div>
                 </div>
             </div><!-- /.container -->
