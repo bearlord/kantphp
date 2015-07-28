@@ -29,7 +29,7 @@ class Hook {
     }
 
     /**
-     * import plugins
+     * Import plugins
      * 
      * @param array $data plugin information
      * @param boolean $recursive recursive 
@@ -43,11 +43,11 @@ class Hook {
                 if (!isset(self::$tags[$tag]))
                     self::$tags[$tag] = array();
                 if (!empty($val['_overlay'])) {
-                    // 可以针对某个标签指定覆盖模式
+                    // specify the overwrite mode for a tag
                     unset($val['_overlay']);
                     self::$tags[$tag] = $val;
                 } else {
-                    // 合并模式
+                    // merge mode
                     self::$tags[$tag] = array_merge(self::$tags[$tag], $val);
                 }
             }
@@ -55,13 +55,13 @@ class Hook {
     }
 
     /**
-     * 获取插件信息
-     * @param string $tag 插件位置 留空获取全部
+     * Get the tag information
+     * @param string $tag
      * @return array
      */
     static public function get($tag = '') {
         if (empty($tag)) {
-            // 获取全部的插件信息
+            // get all of the plug-in information
             return self::$tags;
         } else {
             return self::$tags[$tag];
@@ -71,8 +71,8 @@ class Hook {
     /**
      * Listion tag's plugin
      * 
-     * @param string $tag 标签名称
-     * @param mixed $params 传入参数
+     * @param string $tag
+     * @param mixed $params
      * @return void
      */
     static public function listen($tag, &$params = NULL) {

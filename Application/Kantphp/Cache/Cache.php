@@ -130,7 +130,6 @@ final class Cache {
                         'host' => $this->cacheConfig[$cacheName]['hostname'],
                         'port' => $this->cacheConfig[$cacheName]['port'],
                         'timeout' => $this->cacheConfig[$cacheName]['timeout'] > 0 ? $this->cacheConfig[$cacheName]['timeout'] : 1,
-                        'debug' => $this->cacheConfig[$cacheName]['debug']
                     );
                     $object = new CacheMemcache($memcacheConfig);
                     break;

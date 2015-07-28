@@ -15,20 +15,15 @@ class Base {
     protected $route;
     protected $request;
     protected $environment = 'Development';
-    protected $debug;
     protected $input;
     //cache
     protected $cache;
-    private $_cacheConfig;
-    protected $cacheAdapter;
     //cookie
     protected $cookie;
-    private $_cookieConfig;
 
     public function __construct() {
-        $this->debug = $this->debugStatus();
-        $this->_initCache();
-        $this->_initCookie();
+        $this->cache = $this->_initCache();
+        $this->cookie = $this->_initCookie();
         $this->_initSession();
         $this->input = Input::getInstance();
     }
@@ -201,7 +196,7 @@ class Base {
     }
 
     /**
-     * 加载缓存
+     * Initialize cache driver;
      * 
      * @return type
      */
@@ -221,7 +216,6 @@ class Base {
             }
             exit('Load Cache Error: ' . $e->getMessage());
         }
-        $this->cache = $cache;
         return $cache;
     }
 
@@ -234,16 +228,14 @@ class Base {
             return $cookie;
         }
         $config = KantRegistry::get('config');
-        $this->_cookieConfig = $config['cookie'];
         try {
-            $cookie = Cookie::getInstance($this->_cookieConfig);
+            $cookie = Cookie::getInstance($config['cookie']);
         } catch (RuntimeException $e) {
             if (!headers_sent()) {
                 header('HTTP/1.1 500 Internal Server Error');
             }
             exit('Load Cache Error: ' . $e->getMessage());
         }
-        $this->cookie = $cookie;
         return $cookie;
     }
 

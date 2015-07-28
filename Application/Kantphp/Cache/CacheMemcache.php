@@ -17,7 +17,7 @@ class CacheMemcache {
 
     public function __construct($memcacheConfig) {
         $this->memcache = new Memcache;
-        $this->memcache->connect($memcacheConfig['host'], $memcacheConfig['port'], $memcacheConfig['debug']);
+        $this->memcache->connect($memcacheConfig['host'], $memcacheConfig['port'], $memcacheConfig['timeout']);
     }
 
     /**

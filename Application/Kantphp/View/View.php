@@ -22,9 +22,7 @@ class View extends Base {
      * @var type 
      */
     protected $theme = 'default';
-    
     protected $templateSuffix = '.php';
-
 
     /**
      * dispatchInfo
@@ -32,7 +30,7 @@ class View extends Base {
      * @var type 
      */
     protected $dispatchInfo;
-    
+
     /**
      * template variables
      * 
@@ -43,8 +41,6 @@ class View extends Base {
     public function __construct() {
         parent::__construct();
         $this->dispatchInfo = KantRegistry::get('dispatchInfo');
-        $config = KantRegistry::get('config');
-        $this->theme = $config['theme'];
         $this->templateSuffix = $config['template_suffix'];
     }
 
@@ -82,10 +78,11 @@ class View extends Base {
         if (empty($template)) {
             $tplfile = $tpldir . strtolower($this->dispatchInfo['ctrl']) . DIRECTORY_SEPARATOR . strtolower($this->dispatchInfo['act']) . $this->templateSuffix;
         } else {
-            $tplfile = $tpldir . $template .$this->templateSuffix;
+            $tplfile = $tpldir . $template . $this->templateSuffix;
         }
         if (!file_exists($tplfile)) {
-            if ($this->debug) {
+            $config = KantRegistry::get('config');
+            if ($config['debug']) {
                 throw new RuntimeException(sprintf("No template: %s", $tplfile));
             } else {
                 $this->redirect($this->lang('system_error'), 'close');
@@ -100,7 +97,7 @@ class View extends Base {
      * @param string $template
      * @throws RuntimeException
      */
-    public function display($template = '') { 
+    public function display($template = '') {
         $content = $this->fetch($template);
         header("X-Powered-By:KantPHP");
         echo $content;
@@ -140,7 +137,8 @@ class View extends Base {
         $tpldir = $this->getTplDir($module);
         $tplfile = $tpldir . $ctrl . DIRECTORY_SEPARATOR . $act . '.php';
         if (!file_exists($tplfile)) {
-            if ($this->debug) {
+            $config = KantRegistry::get('config');
+            if ($config['debug']) {
                 throw new RuntimeException(sprintf("No template: %s", $tplfile));
             } else {
                 $this->redirect($this->lang('system_error'), 'close');
@@ -156,10 +154,12 @@ class View extends Base {
         if ($module == '') {
             $module = isset($this->dispatchInfo['module']) ? strtolower($this->dispatchInfo['module']) : '';
         }
+        $config = KantRegistry::get('config');
+        $theme = $config['theme'];
         if ($module) {
-            $tpldir = TPL_PATH . $this->theme . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR;
+            $tpldir = TPL_PATH . $theme . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR;
         } else {
-            $tpldir = TPL_PATH . $this->theme . DIRECTORY_SEPARATOR;
+            $tpldir = TPL_PATH . $theme . DIRECTORY_SEPARATOR;
         }
         return $tpldir;
     }
