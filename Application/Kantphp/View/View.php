@@ -41,7 +41,6 @@ class View extends Base {
     public function __construct() {
         parent::__construct();
         $this->dispatchInfo = KantRegistry::get('dispatchInfo');
-        $this->templateSuffix = $config['template_suffix'];
     }
 
     /**
@@ -79,11 +78,12 @@ class View extends Base {
         if (empty($template)) {
             $tplfile = $tpldir . strtolower($this->dispatchInfo['ctrl']) . DIRECTORY_SEPARATOR . strtolower($this->dispatchInfo['act']) . $config['template_suffix'];
         } else {
-            $tplfile = $tpldir . $template . $this->templateSuffix;
+            $tplfile = $tpldir . $template . $config['template_suffix'];
         }
         if (!file_exists($tplfile)) {       
             if ($config['debug']) {
-                throw new RuntimeException(sprintf("No template: %s", $tplfile));
+//                throw new RuntimeException(sprintf("No template: %s", $tplfile));
+                throw new KantException(sprintf("No template: %s", $tplfile));
             } else {
                 $this->redirect($this->lang('system_error'), 'close');
             }

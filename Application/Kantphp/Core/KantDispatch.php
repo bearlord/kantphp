@@ -15,6 +15,8 @@ class KantDispatch extends Dispatch {
 class Dispatch {
 
     private static $_instance;
+    private $_dispatchInfo;
+    private $_pathInfo;
 
     public static function getInstance() {
         if (null === self::$_instance) {

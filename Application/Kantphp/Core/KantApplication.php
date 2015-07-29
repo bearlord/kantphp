@@ -132,11 +132,16 @@ final class Kant {
         Log::init();
         Hook::import(self::$_config['tags']);
         if (self::$_config['debug']) {
+            ini_set('display_errors', 1);
+            error_reporting(E_ALL);
             Runtime::mark('begin');
         }
         Hook::listen('app_begin');
         $this->exec();
         Hook::listen('app_end');
+        if (self::$_config['debug']) {
+            Runtime::mark('end');
+        }
     }
 
     /**
