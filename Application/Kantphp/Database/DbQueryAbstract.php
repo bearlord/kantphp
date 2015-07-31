@@ -388,7 +388,7 @@ abstract class DbQueryAbstract extends Base {
      * @param kh string
      */
     public function whereConcatLike($keys, $value, $split = 'AND', $kh = '') {
-        if (empty($key)) {
+        if (empty($keys)) {
             return $this;
         }
         if (is_string($keys)) {

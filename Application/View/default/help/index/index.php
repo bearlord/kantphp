@@ -59,13 +59,11 @@
                         <li><a href="#view">8.视图</a></li>
                         <li><a href="#model">9.模型</a></li>
                         <li><a href="#cookie">10.Cookie</a></li>
-                        <li><a href="#cookie">11.Session</a></li>
+                        <li><a href="#session">11.Session</a></li>
                         <li><a href="#cache">12.Cache</a></li>
                         <li><a href="#section-5">13.路由与重写</a></li>
                         <li><a href="#section-5">14.扩展</a></li>
                         <li><a href="#section-5">15.第三方类库</a></li>
-                        <li><a href="#section-5">16.独立文件服务器</a></li>
-                        <li><a href="#section-5">17.多库操作</a></li>
                     </ul>
                 </div>
                 <div class="col-xs-9 col-sm-8 help-main">
@@ -450,7 +448,8 @@
                         <h4>9.7.1 分页</h4>
                         <p>分页是很经典的例子。当初洞主刚毕业去参加面试，就被问过很多次。现在我们要写一个博客列表。</p>
                         <p>URL访问地址为：<em>/blog/list/index</em>。加上分页 page 参数后为 /blog/list/index/page,[1,2,3...].html</p>
-                        <p>对应控制器为:/Application/Module/Blog/Controller/ListController.php。对应动作为indexAcion。</p>
+                        <p>加上查询条件&key=val如[blog_author = 洞主] 后为 /blog/list/index/key,val/page,[1,2,3...].html</p>
+                        <p>对应控制器为:<em>/Application/Module/Blog/Controller/ListController.php</em>。对应动作为indexAcion。</p>
                         <blockquote>
                             <ol class="linenums">
                                 <li><code>public function indexAction(){</code></li>
@@ -469,7 +468,7 @@
                                 <li><code>}</code></li>
                             </ol>
                         </blockquote>
-                        <p>对应的模型为：/Application/Module/Blog/Model/BlogModel.php。方法名为 getPageList</p>
+                        <p>对应的模型为：<em>/Application/Module/Blog/Model/BlogModel.php</em>。方法名为 getPageList</p>
                         <blockquote>
                             <ol class="linenums">
                                 <li><code>class BlogModel extens BaseModel{</code></li>
@@ -477,20 +476,104 @@
                                 <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>protected $primary = 'id';</code> //主键</li>
                                 <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>public function getPageList($page, $perPage){</code></li>
                                 <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$data[0] = $this->db->from($this->table)->count();</code> //博客总数</li>
-                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$data[1] = $this->db->from($this->table)->select("blog_title, blog_description, blog_thumb, blog_date, blog_hits, blog_tags")->page($page, $perPage)->fetch();</code> //当前页博客列表结果集</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$data[1] = $this->db->from($this->table)->select("blog_title, blog_description, blog_thumb, blog_author, blog_date, blog_hits, blog_tags")->where('blog_author', '洞主')->page($page, $perPage)->fetch();</code> //当前页博客列表结果集</li>
                                 <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>return $data;</code></li>
                                 <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>}</code></li>
                                 <li><code>}</code></li>
                             </ol>
                         </blockquote>
-                        <p>对应的视图问题：/Application/View/default/blog/list/index.php</p>
+                        <p>对应的视图为：<em>/Application/View/default/blog/list/index.php</em>。按PHP原生态语法输出即可</p>
                         <blockquote>
                             <ol class="linenums">
-                                <li><code><?php echo htmlspecialchars('<h1><?php echo $</h1>'); ?></code></li>
+                                <li><code><?php echo htmlspecialchars('<h1><?php foreach($blogList as $key=>$val): ?></h1>'); ?></code></li>
+                                <li><code><?php echo htmlspecialchars('<div>'); ?></code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code><?php echo htmlspecialchars('<h1>标题：<?php echo $val["blog_title"]; ?></h1>'); ?></code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code><?php echo htmlspecialchars('<p>描述：<?php echo $val["blog_description"]; ?></p>'); ?></code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code><?php echo htmlspecialchars('<p>作者：<?php echo $val["blog_author"]; ?></p>'); ?></code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code><?php echo htmlspecialchars('<p>发布日期：<?php echo $val["blog_date"]; ?></p>'); ?></code></li>
+                                <li><code><?php echo htmlspecialchars('</div>'); ?></code></li>
+                                <li><code><?php echo htmlspecialchars('<div class="pages"><?php ecoh $pages; ?></div>'); ?></code></li>
                             </ol>
                         </blockquote>
+                        <h3>9.7.2 事务</h3>
+                        <p>事务就是一段sql语句的批处理，但是这个批处理是一个atom（原子），不可分割，要么都执行，要么回滚（rollback）都不执行。</p>
+                        <p>比如客户购买商品后的付款过程。客户余额减少，订单表状态更改，同时要写入客户消费记录表等等。假如我们仅操作3张表。</p>
+                        <p>付款过程肯定要卸载模型中，除了主表外，还有2张附表。</p>
+                        <p>对应的模型为OrderModel，方法名称为pay</p>
+                        <blockquote>
+                            <ol>
+                                <li><code>class Order extends BaseModel{</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>protected $table = 'order';</code> //订单表</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>protected $tableUserBlance = 'user_blance';</code> //客户余额表</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>protected $tableUserLog = 'user_log';</code> //客户日志表</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>public function pay($userid, $orderid){</code> //参数分别为用户id和订单id</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$orderInfo = $this->getOrderInfoByID($orderid);</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$this->db->begin();</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$res_order = $this->db->from($this->table)->where('order_id', $orderid)->set(array('order_status'=>'checkout'...)->upate();</code> //订单已付款</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$res_blance = $this->db->from($this->tableUserBlance)->where("user_id = $userid AND user_blance >= $orderInfo['order_amount']")->setDec('user_blance', $orderInfo['order_amount'])->upate();</code> //用户金额减少</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$res_log = $this->db->from($this->tableUserLog)->set(array('user_id' => $userid, 'order_id' >= $orderid, "log_content" => "2015-08-05 20:05:03 客户洞主为订单100346付款"))->setDec('user_blance', $orderInfo['order_amount'])->upate();</code> //用户金额减少</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>if ($res_order && $res_blance && $res_log) {</code> //写入日志</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$this->db->commit();</code> //完成事务</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>return true;</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>} else {</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$this->db->rollback();</code> //回滚</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>}</code></li>
+                            </ol>
+                        </blockquote>
+                        <h3>9.7.3 $this->db对象</h3>
+                        <p>$this->db可以完成项目中遇到的大部分SQL需求。通过方法链[ACTION CHAIN]来完成SQL的拼装。</p>
+                        <ul>
+                            <li><code>$this->db->from();</code>  //FROM table</li>
+                            <li><code>$this->db->join();</code> // table a JOIN table b</li>
+                            <li><code>$this->db->where();</code> //WHERE 条件</li>
+                            <li><code>$this->db->whereIn();</code> //WHERE field IN</li>
+                            <li><code>$this->db->whereNotIn();</code> //WHERE field NOT In</li>
+                            <li><code>$this->db->wehreExist();</code>//WHERE EXISTS</li>
+                            <li><code>$this->db->whereLike();</code> //WHERE field LIKE </li>
+                            <li><code>$this->db->whereBetweenAnd();</code> //WHERE field BETWEEN a AND b</li>
+                            <li><code>$this->db->whereOr();</code> //WHERE 条件1 OR 条件2</li>
+                            <li><code>$this->db->whereConcatLike();</code> //WHERE CONCAT(field_a, field_b) LIKE</li>
+                            <li><code>$this->db->whereMore();</code> WHERE field >= </li>
+                            <li><code>$this->db->whereLess();</code> WHERE field >= </li>
+                            <li><code>$this->db->set();</code> WHERE field <= </li>
+                            <li><code>$this->db->setAdd();</code> WHERE field = field + n</li>
+                            <li><code>$this->db->setDec();</code> WHERE field = field - n</li>
+                            <li><code>$this->db->groupby();</code> GROUP BY field</li>
+                            <li><code>$this->db->orderby();</code> ORDER BY field</li>
+                            <li><code>$this->db->limit();</code> LIMIT 10 OFFSET 5</li>
+                            <li><code>$this->db->page();</code> 分页参数到LIMIT 参数</li>
+                            <li><code>$this->db->select();</code> SELECT field</li>
+                            <li><code>$this->db->update();</code> UPDATE TABLE SET...</li>
+                            <li><code>$this->db->delete();</code> DELETE FROM TABLE...</li>
+                            <li><code>$this->db->getLastSqls();</code> 最近查询的SQL</li>
+                            <li><code>$this->db->ttl();</code> 缓存结果集</li>
+                            <li><code>$this->db->begin();</code> 开始事务</li>
+                            <li><code>$this->db->rollback();</code> 回滚事务</li>
+                            <li><code>$this->db->commit();</code> 事务完成</li>
+                        </ul>
+                        <p>详细用法，请参考<em>/Appplication/KantPHP/Database/DbQueryAbstract.php</em></p>
+                    </div>
+                    <div class="help-post" id="cookie">
+                        <h2>10. COOKIE</h2>
+                    </div>
+                    <div class="help-post" id="session">
+                        <h2>11. SESSION</h2>
+                    </div>
+                    <div class="help-post" id="cache">
+                        <h2>12. CACHE</h2>
+                    </div>
+                    <div class="help-post" id="rewrite">
+                        <h2>13. 路由与重写</h2>
+                    </div>
+                    <div class="help-post" id="cache">
+                        <h2>14. 扩展</h2>
+                    </div>
+                    <div class="help-post" id="thirdparty">
+                        <h2>15. 第三方类库</h2>
                     </div>
                 </div>
+
             </div><!-- /.container -->
 
             <footer class="help-footer">

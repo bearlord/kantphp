@@ -99,7 +99,7 @@ class View extends Base {
      */
     public function display($template = '') {
         $content = $this->fetch($template);
-        header("X-Powered-By:KantPHP");
+        header("X-Powered-By:KantPHP Framework");
         echo $content;
     }
 
