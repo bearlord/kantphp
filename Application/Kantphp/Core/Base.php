@@ -43,24 +43,18 @@ class Base {
         }
         $filepath = KANT_PATH . $path . $classname . '.php';
         $key = md5($path . $classname);
-        if (isset($classes[$key])) {
-            if (!empty($classes[$key])) {
-                return $classes[$key];
-            } else {
-                return true;
-            }
-        }
         if (file_exists($filepath)) {
             include_once $filepath;
             if ($initialize) {
+                if (!empty($classes[$key])) {
+                    return $classes[$key];
+                }
                 $classes[$key] = new $classname;
             } else {
                 $classes[$key] = true;
             }
             return $classes[$key];
-        } else {
-            return false;
-        }
+        } 
     }
 
     /**
@@ -75,22 +69,18 @@ class Base {
         static $classes = array();
         $filepath = APP_PATH . 'Libary' . DIRECTORY_SEPARATOR . $classname . '.php';
         $key = md5($classname);
-        if (isset($classes[$key])) {
-            if (!empty($classes[$key])) {
-                return $classes[$key];
-            } else {
-                return true;
-            }
-        }
         if (file_exists($filepath)) {
             include_once $filepath;
             if ($initialize) {
+                if (!empty($classes[$key])) {
+                    return $classes[$key];
+                }
                 $classes[$key] = new $classname;
             } else {
                 $classes[$key] = true;
             }
             return $classes[$key];
-        } 
+        }
     }
 
     /**
@@ -113,16 +103,12 @@ class Base {
             $filepath = APP_PATH . 'Model' . DIRECTORY_SEPARATOR . $classname . '.php';
         }
         $key = md5($filepath . $classname);
-        if (isset($classes[$key])) {
-            if (!empty($classes[$key])) {
-                return $classes[$key];
-            } else {
-                return true;
-            }
-        }
         if (file_exists($filepath)) {
             include_once $filepath;
             if ($initialize) {
+                if (!empty($classes[$key])) {
+                    return $classes[$key];
+                }
                 $classes[$key] = new $classname;
             } else {
                 $classes[$key] = true;
@@ -374,22 +360,6 @@ class Base {
                 echo $content;
             }
         }
-    }
-
-    /**
-     * Debug status
-     * 
-     * @return 
-     */
-    public function debugStatus() {
-        $config = KantRegistry::get('config');
-        $this->debug = $config['debug'];
-        if (!empty($this->debug)) {
-            ini_set('display_errors', 1);
-            error_reporting(E_ALL);
-            return $this->debug;
-        }
-        return false;
     }
 
     /**

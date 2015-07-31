@@ -17,18 +17,21 @@
  */
 abstract class DbQueryAbstract extends Base {
 
+    //Connection identifier
+    protected $dbh = '';
+    protected $config;
     public $dbTablepre = '';
     protected $table = '';
     protected $where = '';
     protected $set = '';
     protected $select = '';
     protected $from = '';
-    protected $groupBy = '';
-    protected $orderBy = '';
+    protected $groupby = '';
+    protected $orderby = '';
     protected $limit = '';
     protected $ttl = 0;
-    protected $varFields = array('set', 'select', 'from', 'where', 'groupBy', 'orderBy', 'limit');
-    protected $cacheFields = array('set' => '', 'select' => '', 'from' => '', 'where' => '', 'groupBy' => '', 'orderBy' => '', 'limit' => '');
+    protected $varFields = array('set', 'select', 'from', 'where', 'groupby', 'orderby', 'limit');
+    protected $cacheFields = array('set' => '', 'select' => '', 'from' => '', 'where' => '', 'groupby' => '', 'orderby' => '', 'limit' => '');
     protected $sqls;
     protected $queryCount;
 
@@ -421,18 +424,18 @@ abstract class DbQueryAbstract extends Base {
      *
      * @param groups string
      */
-    public function groupBy($groups) {
+    public function groupby($groups) {
         if (empty($groups)) {
             return $this;
         } elseif (is_array($groups)) {
             foreach ($groups as $key => $val) {
                 $groups[$key] = $this->checkField($val);
             }
-            $groupBy = implode(',', $groups);
+            $groupby = implode(',', $groups);
         } elseif (is_string($groups)) {
-            $groupBy = $this->checkField($groups);
+            $groupby = $this->checkField($groups);
         }
-        $this->groupBy .= ($this->groupBy ? ',' : '') . $groupBy;
+        $this->groupby .= ($this->groupby ? ',' : '') . $groupby;
         return $this;
     }
 
@@ -443,7 +446,7 @@ abstract class DbQueryAbstract extends Base {
      * @param field string
      * @param type string
      */
-    public function orderBy($field, $type = 'ASC') {
+    public function orderby($field, $type = 'ASC') {
         if (empty($field)) {
             return $this;
         } elseif (is_array($field)) {
@@ -455,16 +458,16 @@ abstract class DbQueryAbstract extends Base {
                 }
             }
         } elseif (is_string($field)) {
-            $orderBy = '';
+            $orderby = '';
             if (strpos($field, ',')) {
-                $orderBy .= $this->checkField($field) . ' ';
+                $orderby .= $this->checkField($field) . ' ';
             } else {
                 if (strpos($field, ' ')) {
                     list($field, $type) = explode(' ', $field);
                 }
-                $orderBy .= $this->checkField($field) . ($type == 'DESC' ? (' ' . $type) : '');
+                $orderby .= $this->checkField($field) . ($type == 'DESC' ? (' ' . $type) : '');
             }
-            $this->orderBy .= ($this->orderBy ? ', ' : '') . $orderBy;
+            $this->orderby .= ($this->orderby ? ', ' : '') . $orderby;
         }
         return $this;
     }
@@ -477,18 +480,40 @@ abstract class DbQueryAbstract extends Base {
      * @param offset integer
      */
     public function limit($start, $offset = '') {
-        $start = (int) $start;
-        $offset = (int) $offset;
-        if (!$start && !$offset) {
-            return;
-        } elseif (!$offset) {
-            $this->limit = "$start OFFSET 0 ";
-        } else {
-            $this->limit = "$offset OFFSET $start ";
+        if ($start >= 0) {
+            if (!$offset) {
+                $this->limit = "$start OFFSET 0 ";
+            } else {
+                $this->limit = "$offset OFFSET $start ";
+            }
         }
         return $this;
     }
 
+    /**
+     * Page
+     * 
+     * @param integer $page
+     * @param integer $listRows
+     * @return \DbQueryAbstract
+     */
+    public function page($page, $listRows = null) {
+        if (is_null($listRows) && strpos($page, ',')) {
+            list($page, $listRows) = explode(',', $page);
+        }
+        $page = $page > 0 ? $page : 1;
+        $listRows = $listRows > 0 ? $listRows : 10;
+        $offset = $listRows * ($page - 1);
+        $this->limit = "$listRows OFFSET $offset ";
+        return $this;
+    }
+
+    /**
+     * TTL
+     * 
+     * @param type $ttl
+     * @return \DbQueryAbstract
+     */
     public function ttl($ttl) {
         if ($ttl === true) {
             //do nothing
@@ -515,8 +540,8 @@ abstract class DbQueryAbstract extends Base {
         $sql = "SELECT " . ($getCountSql ? "COUNT(*) as count" : ($this->select ? $this->select : "*")) .
                 " FROM " . $this->from .
                 ($this->where ? " WHERE " . $this->where : "") .
-                ($getCountSql ? '' : ($this->groupBy ? " GROUP BY " . $this->groupBy : "")) .
-                ($getCountSql ? '' : ($this->orderBy ? " ORDER BY " . $this->orderBy : "")) .
+                ($getCountSql ? '' : ($this->groupby ? " GROUP BY " . $this->groupby : "")) .
+                ($getCountSql ? '' : ($this->orderby ? " ORDER BY " . $this->orderby : "")) .
                 ($getCountSql ? '' : ($this->limit ? " LIMIT " . $this->limit : ""));
         return $sql;
     }
@@ -529,7 +554,7 @@ abstract class DbQueryAbstract extends Base {
      * @param update boolean
      * @return string
      */
-    public function insertSql($update = false) {
+    protected function insertSql($update = false) {
         foreach ($this->varFields as $v) {
             $$v = $v;
         }
@@ -560,7 +585,7 @@ abstract class DbQueryAbstract extends Base {
      * Combine delete SQL
      *
      */
-    public function deleteSql() {
+    protected function deleteSql() {
         foreach ($this->varFields as $v) {
             $$v = $v;
         }

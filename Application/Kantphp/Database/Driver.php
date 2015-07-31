@@ -97,7 +97,7 @@ final class Driver {
                 break;
             case 'pdo_mysql' :
                 require_once KANT_PATH . 'Database/PDO/MysqlDb.php';
-                $class = 'PdoSqliteDb';
+                $class = 'PdoMysqlDb';
                 break;
             case 'pdo_sqlite';
                 require_once KANT_PATH . 'Database/PDO/SqliteDb.php';

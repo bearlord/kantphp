@@ -354,7 +354,8 @@
                         <p>模型实例化也就是实例化一个类，原理无非是include class; new class。KantPHP Framework封装了 model 方法简化了这两个步骤。如：</p>
                         <blockquote>
                             <p><code>$CategoryMdoel = $this->model('Category')</code> 等同于：</p>
-                            <p><code>include [...]/Module/Blog/Model/CategoryModel.php; $CategoryModel = new CategoryModel();</code></p>
+                            <p><code>include "/Application/Moduel/Blog/Model/CategoryModel.php"; </code></p>
+                            <p><code>$CategoryModel = new CategoryModel();</code></p>
                             <p><b>注意：KantPHP Framework底层中有根据类别名映射进行的自动加载，但加载应用模型需要人工加载。直接<code>$CategoryModel = new CategoryModel();</code>会报错找不到指定文件。</b></p>
                             <p>为执行效率着想，<code>$CategoryMdoel = $this->model('Category');</code> 已经把实例化的CategoryModel缓存静态变量。在单次的进程【粗略的理解为本次浏览器请求】中，再次调用$this->model('Category')会直接读取静态变量，不用再实例化模型。</p>
                             <p>model是基类方法，可以在控制器和模型中使用。</p>
@@ -396,13 +397,13 @@
                         </blockquote>
                         <p>配置文件中有关数据库设置如上所示。如果希望在CategoryModel中连接【默认适配器】， 而在MemberModel中连接【MySql适配器】,只需要在指定<code>protected $adapter = 'default'; </code>或者<code>protected $adapter = 'mysql_adapter';</code>即可。因默认适配器已设为【default】，所以不指定适配器即表示用默认适配器连接。【又一大段文绉绉的话。通俗点讲，配置文件database写两个数据库配置，模型里指定 $adapter 调用哪一个。】</p>
                         <h3>9.3 创建数据</h3>
-                        <p>控制器接受表单请求，并把数据存入数据库。这一过程一般在控制器的动作方法中实现。如：</p>
+                        <p>控制器接受表单请求，并把数据存入数据库。这一过程一般在控制器的动作方法中,调用模型的 save 方法实现。如：</p>
                         <blockquote>
-                            <p><code>$data = array('category_tile' => 'Unix/Linux运维', 'category_description' => '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179');</code> key值要与数据表字段名一致</p>
+                            <p><code>$data = array('category_title' => 'Unix/Linux运维', 'category_description' => '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179');</code> key值要与数据表字段名一致</p>
                             <p><code>$CategoryModel = $this->model('category');</code></p>
                             <p><code>$row = $CategoryModel->save($data);</code></p>
                             <p>解析后的SQL为：</p>
-                            <p><code>INSERT INTO kant_category ('category_tile', 'category_description') VALUES ('Unix/Linux运维',  '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179');</code></p>
+                            <p><code>INSERT INTO kant_category ('category_title', 'category_description') VALUES ('Unix/Linux运维',  '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179');</code></p>
                             <p>返回值$row为数据表主键最后插入的id或是最后一个序列。MySQL、SqLite为前者，PostgreSQl为后者。如果 $row 为真，说明保存数据成功。</p>
                         </blockquote>
                         <h3>9.4 读取数据</h3>
@@ -426,12 +427,12 @@
                         <h3>9.5 更新数据</h3>
                         <p>更新数据与创建数据类似，加入查询条件即可。</p>
                         <blockquote>
-                            <p><code>$data = array('category_tile' => 'Unix/Linux运维', 'category_description' => '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179');</code> key值要与数据表字段名一致</p>
+                            <p><code>$data = array('category_title' => 'Unix/Linux运维', 'category_description' => '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179');</code> key值要与数据表字段名一致</p>
                             <p><code>$CategoryModel = $this->model('category');</code></p>
                             <p><code>$row = $CategoryModel->save($data, array('category_id' => 103));</code> 或者</p>
                             <p><code>$row = $CategoryModel->save($data, 103);</code> 第二个参数为模型的主键对应值。</p>
                             <p>解析后的SQL为：</p>
-                            <p><code>UPDATE kant_category SET category_tile = 'Unix/Linux运维', category_description = '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179' WHERE category_id = 103</code></p>
+                            <p><code>UPDATE kant_category SET category_title = 'Unix/Linux运维', category_description = '自动化运维 虚拟化技术 云计算 系统架构 Q群：49199179' WHERE category_id = 103</code></p>
                             <p>返回值$row为 UPDATE SQL 的执行结果,而不是影响的行数。true为成功，false为失败。</p>
                         </blockquote>
                         <h3>9.6 删除数据</h3>
@@ -445,6 +446,49 @@
                             <p>返回值$row为 DELETE SQL 的执行结果。true为成功，false为失败。</p>
                         </blockquote>
                         <h3>9.7 复杂的CURD操作</h3>
+                        <p>项目开发中，不仅仅是简单的对数据表的创建、读取、修改、删除操作。模型封装的 read, save, delete方法已不能满足开发要求。我们需要在模型里新建方法，然后在控制器里调用此方法。下面举例说明。</p>
+                        <h4>9.7.1 分页</h4>
+                        <p>分页是很经典的例子。当初洞主刚毕业去参加面试，就被问过很多次。现在我们要写一个博客列表。</p>
+                        <p>URL访问地址为：<em>/blog/list/index</em>。加上分页 page 参数后为 /blog/list/index/page,[1,2,3...].html</p>
+                        <p>对应控制器为:/Application/Module/Blog/Controller/ListController.php。对应动作为indexAcion。</p>
+                        <blockquote>
+                            <ol class="linenums">
+                                <li><code>public function indexAction(){</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$perPage = 15;</code> //每页15篇日志</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$page = $this->input->get('page','intval', 1);</code> //当前页</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$BlogModel = $this->model('Blog');</code> //加载Blog模型并实例化</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$data = $BlogModel->getPageList($page, $perPage);</code> //传递分页参数，返回列表结果集。</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$count = $data[0];</code> //博客总数</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$blogList = $data[1];</code> //博客列表</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$this->library('Page');</code> //引入分页类，不实例化。</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$pageObj = new Page($count, $perPage);</code> //实例化分页类</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$pages = $pageObj->show();</code> //分页展示</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$this->view->blogList = $blogList;</code> //传值到视图</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$this->view->pages = $pages;</code> //传值到视图</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$this->view->dispaly();</code> 视图显示</li>
+                                <li><code>}</code></li>
+                            </ol>
+                        </blockquote>
+                        <p>对应的模型为：/Application/Module/Blog/Model/BlogModel.php。方法名为 getPageList</p>
+                        <blockquote>
+                            <ol class="linenums">
+                                <li><code>class BlogModel extens BaseModel{</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>protected $table = 'blog';</code> //表名</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>protected $primary = 'id';</code> //主键</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>public function getPageList($page, $perPage){</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$data[0] = $this->db->from($this->table)->count();</code> //博客总数</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>$data[1] = $this->db->from($this->table)->select("blog_title, blog_description, blog_thumb, blog_date, blog_hits, blog_tags")->page($page, $perPage)->fetch();</code> //当前页博客列表结果集</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><code>return $data;</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>}</code></li>
+                                <li><code>}</code></li>
+                            </ol>
+                        </blockquote>
+                        <p>对应的视图问题：/Application/View/default/blog/list/index.php</p>
+                        <blockquote>
+                            <ol class="linenums">
+                                <li><code><?php echo htmlspecialchars('<h1><?php echo $</h1>'); ?></code></li>
+                            </ol>
+                        </blockquote>
                     </div>
                 </div>
             </div><!-- /.container -->

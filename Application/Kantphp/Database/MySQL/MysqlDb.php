@@ -11,8 +11,10 @@
 class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
 
     //Connection identifier
-    private $_dbh = '';
-    private $_config;
+    protected $dbh = '';
+    protected $config;
+    protected $queryID;
+    protected $numRows;
 
     /**
      *
@@ -21,7 +23,7 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
      * @param config
      */
     public function open($config) {
-        $this->_config = $config;
+        $this->config = $config;
         if ($config['autoconnect'] == 1) {
             $this->_connect();
         }
@@ -35,21 +37,21 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
      * failure.
      */
     private function _connect() {
-        $func = $this->_config['persistent'] == 1 ? 'mysql_pconnect' : 'mysql_connect';
-        if (!$this->_dbh = @$func($this->_config['hostname'] . ":" . $this->_config['port'], $this->_config['username'], $this->_config['password'], 1)) {
+        $func = $this->config['persistent'] == 1 ? 'mysql_pconnect' : 'mysql_connect';
+        if (!$this->dbh = @$func($this->config['hostname'] . ":" . $this->config['port'], $this->config['username'], $this->config['password'], 1)) {
             throw new KantException(sprintf('Can not connect to MySQL server or cannot use database.%s', mysql_error()));
         }
         if ($this->version() > '4.1') {
-            $charset = isset($this->_config['charset']) ? $this->_config['charset'] : '';
+            $charset = isset($this->config['charset']) ? $this->config['charset'] : '';
             $serverset = $charset ? "character_set_connection='$charset',character_set_results='$charset',character_set_client=binary" : '';
             $serverset .= $this->version() > '5.0.1' ? ((empty($serverset) ? '' : ',') . " sql_mode='' ") : '';
-            $serverset && mysql_query("SET $serverset", $this->_dbh);
+            $serverset && mysql_query("SET $serverset", $this->dbh);
         }
 
-        if ($this->_config['database'] && !@mysql_select_db($this->_config['database'], $this->_dbh)) {
+        if ($this->config['database'] && !@mysql_select_db($this->config['database'], $this->dbh)) {
             throw new KantException(sprintf('Can not use MySQL server or cannot use database.%s', mysql_error()));
         }
-        $this->database = $this->_config['database'];
+        $this->database = $this->config['database'];
     }
 
     /**
@@ -59,19 +61,28 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
      * @return string the MySQL server version on success&return.falseforfailure;.
      */
     public function version() {
-        if (!is_resource($this->_dbh)) {
+        if (!is_resource($this->dbh)) {
             $this->_connect();
         }
-        return mysql_get_server_info($this->_dbh);
+        return mysql_get_server_info($this->dbh);
+    }
+
+    /**
+     * Free result memory
+     */
+    public function free() {
+        mysql_free_result($this->queryID);
+        $this->queryID = null;
     }
 
     /**
      * Close database connection
      */
     public function close() {
-        if (is_resource($this->_dbh)) {
-            @mysql_close($this->_dbh);
+        if (is_resource($this->dbh)) {
+            mysql_close($this->dbh);
         }
+        $this->dbh = null;
     }
 
     /**
@@ -97,12 +108,15 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
      * @param SQL string
      * @return resource
      */
-    public function execute($sql, $method = '') {
-        if (!is_resource($this->_dbh)) {
+    public function execute($sql) {
+        if (!is_resource($this->dbh)) {
             $this->_connect();
         }
-        $query = ($method == 'unbuffer') ? mysql_unbuffered_query($sql, $this->_dbh) : mysql_query($sql, $this->_dbh);
-        if (!$query && $method != 'SILENT') {
+        if ($this->queryID) {
+            $this->free();
+        }
+        $this->queryID = mysql_query($sql, $this->dbh);
+        if (!$this->queryID) {
             throw new KantException(sprintf("MySQL Query Error:%s,Error Code:%s", $sql, mysql_errno()));
         }
         $this->sqls[] = $sql;
@@ -117,46 +131,34 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
      * @return boolean
      * @throws KantException
      */
-    public function query($sql, $method = 'SILENT') {
+    public function query($sql) {
         $cacheSqlMd5 = 'sql_' . md5($sql);
         if ($this->ttl) {
             $rows = $this->cache->get($cacheSqlMd5);
-            if (empty($rows)) {
-                if (!is_resource($this->_dbh)) {
-                    $this->_connect();
-                }
-                $query = ($method == 'unbuffer') ? mysql_unbuffered_query($sql, $this->_dbh) : mysql_query($sql, $this->_dbh);
-                if (!$query && $method != 'SILENT') {
-                    throw new KantException(sprintf("MySQL Query Error:%s,Error Code:%s", $sql, mysql_errno()));
-                }
-                if (is_resource($query) == false) {
-                    return;
-                }
-                if (mysql_num_rows($query) == 0) {
-                    return;
-                }
-                while ($row = mysql_fetch_array($query, MYSQL_ASSOC)) {
-                    $rows[] = $row;
-                }
-                $this->cache->set($cacheSqlMd5, $rows, $this->ttl);
+            if (!empty($rows)) {
+                return $rows;
             }
-        } else {
-            if (!is_resource($this->_dbh)) {
-                $this->_connect();
-            }
-            $query = ($method == 'unbuffer') ? mysql_unbuffered_query($sql, $this->_dbh) : mysql_query($sql, $this->_dbh);
-            if (!$query && $method != 'SILENT') {
-                throw new KantException(sprintf("MySQL Query Error:%s,Error Code:%s", $sql, mysql_errno()));
-            }
-            if (is_resource($query) == false) {
-                return;
-            }
-            if (mysql_num_rows($query) == 0) {
-                return;
-            }
-            while ($row = mysql_fetch_array($query, MYSQL_ASSOC)) {
+        }
+        if (!is_resource($this->dbh)) {
+            $this->_connect();
+        }
+        if ($this->queryID) {
+            $this->free();
+        }
+        $this->queryID = mysql_query($sql, $this->dbh);
+        if (!$this->queryID) {
+            throw new KantException(sprintf("MySQL Query Error:%s,Error Code:%s", $sql, mysql_errno()));
+        }
+        $this->numRows = mysql_num_rows($this->queryID);
+        if ($this->numRows > 0) {
+            while ($row = mysql_fetch_array($this->queryID, MYSQL_ASSOC)) {
                 $rows[] = $row;
             }
+            mysql_data_seek($this->queryID, 0);
+        }
+        if ($this->ttl) {
+            $this->cache->set($cacheSqlMd5, $rows, $this->ttl);
+        } else {
             $this->cache->delete($cacheSqlMd5);
         }
         $this->sqls[] = $sql;
@@ -174,7 +176,7 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
      * no MySQL connection was established.
      */
     public function lastInsertId($primaryKey = null) {
-        return ($id = mysql_insert_id($this->_dbh)) >= 0 ? $id : mysql_result($this->query("SELECT last_insert_id()"), 0);
+        return ($id = mysql_insert_id($this->dbh)) >= 0 ? $id : mysql_result($this->query("SELECT last_insert_id()"), 0);
     }
 
     /**
@@ -187,7 +189,7 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
      */
     public function fetch($fetchMode = '', $clearVar = true) {
         $sql = $this->getSql(0);
-        $result = $this->query($sql, $fetchMode);
+        $result = $this->query($sql);
         $this->cacheSql();
         if ($clearVar) {
             $this->clear();
@@ -206,7 +208,7 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
             $this->limit = 1;
         }
         $sql = $this->getSql(0);
-        $query = mysql_query($sql, $this->_dbh);
+        $query = mysql_query($sql, $this->dbh);
         if (!$query) {
             throw new KantException(sprintf("MySQL Query Error:%s,Error Code:%s", $sql, mysql_errno()));
         }
@@ -283,7 +285,7 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
      */
     public function update($clearVar = true) {
         $sql = $this->insertSql(true);
-        $result = $this->execute($sql, 'unbuffer');
+        $result = $this->execute($sql);
         $this->cacheSql();
         if ($clearVar) {
             $this->clear();

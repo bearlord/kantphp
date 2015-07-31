@@ -15,14 +15,6 @@
  */
 class PdoSqliteDb extends DbQueryAbstract implements DbQueryInterface {
 
-    //Connection identifier
-    private $_dbh = '';
-    private $_config;
-
-    public function __construct() {
-        parent::__construct();
-    }
-
     /**
      *
      * Open database connection
@@ -30,7 +22,7 @@ class PdoSqliteDb extends DbQueryAbstract implements DbQueryInterface {
      * @param config
      */
     public function open($config) {
-        $this->_config = $config;
+        $this->config = $config;
         if ($config['autoconnect'] == 1) {
             $this->_connect();
         }
@@ -43,7 +35,7 @@ class PdoSqliteDb extends DbQueryAbstract implements DbQueryInterface {
      * @return void
      */
     private function _connect() {
-        if ($this->_dbh) {
+        if ($this->dbh) {
             return;
         }
         // check for PDO extension
@@ -55,25 +47,25 @@ class PdoSqliteDb extends DbQueryAbstract implements DbQueryInterface {
             throw new KantException('The PDO_PGSQL extension is required for this adapter but the extension is not loaded');
         }
 
-        $dsn = sprintf("%s:%s", "sqlite", $this->_config['database']);
+        $dsn = sprintf("%s:%s", "sqlite", $this->config['database']);
 
         //Request a persistent connection, rather than creating a new connection.
-        if (isset($this->_config['persistent']) && $this->_config['persistent'] == true) {
+        if (isset($this->config['persistent']) && $this->config['persistent'] == true) {
             $options = array(PDO::ATTR_PERSISTENT => true);
         } else {
             $options = null;
         }
-        $this->_config['username'] = null;
-        $this->_config['password'] = null;
+        $this->config['username'] = null;
+        $this->config['password'] = null;
         try {
-            $this->_dbh = new PDO($dsn, null, null, $options);
+            $this->dbh = new PDO($dsn, null, null, $options);
             // always use exceptions.
-            $this->_dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
             throw new KantException(sprintf('Can not connect to SQLite server or cannot use database.%s', $e->getMessage()));
         }
-//		$this->_dbh->exec(sprintf("SET client_encoding \"%s\"", $this->_config['charset']));
-        $this->database = $this->_config['database'];
+		$this->dbh->exec(sprintf("SET NAMES \"%s\"", $this->config['charset']));
+        $this->database = $this->config['database'];
     }
 
     /**
@@ -82,7 +74,7 @@ class PdoSqliteDb extends DbQueryAbstract implements DbQueryInterface {
      *
      */
     public function close() {
-        $this->_dbh = null;
+        $this->dbh = null;
     }
 
     /**
@@ -93,11 +85,11 @@ class PdoSqliteDb extends DbQueryAbstract implements DbQueryInterface {
      * @return resource A query result resource on success or false on failure.
      */
     public function execute($sql) {
-        if (!is_object($this->_dbh)) {
+        if (!is_object($this->dbh)) {
             $this->_connect();
         }
         try {
-            $query = $this->_dbh->exec($sql);
+            $query = $this->dbh->exec($sql);
         } catch (PDOException $e) {
             throw new KantException(sprintf('Can not connect to PostgreSQL server or cannot use database.%s', $e->getMessage()));
         }
@@ -119,19 +111,19 @@ class PdoSqliteDb extends DbQueryAbstract implements DbQueryInterface {
         if ($this->ttl) {
             $rows = $this->cache->get($cacheSqlMd5);
             if (empty($rows)) {
-                if (!is_resource($this->_dbh)) {
+                if (!is_resource($this->dbh)) {
                     $this->_connect();
                 }
-                $sth = $this->_dbh->prepare($sql);
+                $sth = $this->dbh->prepare($sql);
                 $sth->execute();
                 $rows = $sth->fetchAll($fetchMode);
                 $this->cache->set($cacheSqlMd5, $rows, $this->ttl);
             }
         } else {
-            if (!is_resource($this->_dbh)) {
+            if (!is_resource($this->dbh)) {
                 $this->_connect();
             }
-            $sth = $this->_dbh->prepare($sql);
+            $sth = $this->dbh->prepare($sql);
             $sth->execute();
             $rows = $sth->fetchAll($fetchMode);
             $this->cache->delete($cacheSqlMd5);
@@ -148,7 +140,7 @@ class PdoSqliteDb extends DbQueryAbstract implements DbQueryInterface {
      * @return type
      */
     public function lastInsertId($primaryKey = null) {
-        return $this->_dbh->lastInsertId();
+        return $this->dbh->lastInsertId();
     }
 
     /**
@@ -180,10 +172,10 @@ class PdoSqliteDb extends DbQueryAbstract implements DbQueryInterface {
             $this->limit = 1;
         }
         $sql = $this->getSql(0);
-        if (!is_resource($this->_dbh)) {
+        if (!is_resource($this->dbh)) {
             $this->_connect();
         }
-        $sth = $this->_dbh->prepare($sql);
+        $sth = $this->dbh->prepare($sql);
         $sth->execute();
         $result = $sth->fetchColumn(0);
         $this->sqls[] = $sql;

@@ -2,55 +2,42 @@
 
 class Page extends Base {
 
-    // 起始行数
+    // First row
     public $firstRow;
-    // 列表每页显示行数
+    // Per page number
     public $listRows;
-    // 页数跳转时要带的参数
+    // Page parameter
     public $parameter;
-    // 分页总页面数
+    // Total page Number
     protected $totalPages;
-    // 总行数
+    // Total row number
     protected $totalRows;
-    // 当前页数
+    // now page
     protected $nowPage;
-    // 分页的栏的总页数
-    protected $coolPages;
-    // 分页栏每页显示的页数
-    protected $rollPage;
     // 分页显示定制
     public $config = array('preview' => 'Preview', 'next' => 'Next');
     //处理情况 Ajax分页 Html分页(静态化时) 普通get方式 
     protected $method = 'default';
     //ajax分页时函数
     protected $ajaxFunction = 'ajaxpage';
-
-    // 分页显示页数
-    const PAGE_ROLLPAGE = 8;
-    // 分页每页显示记录数
+    // Per page number
     const PAGE_LISTROWS = 20;
-    // 默认分页跳转变量
+    // Default page variable
     const VAR_PAGE = 'page';
 
     /**
-      +----------------------------------------------------------
-     * 架构函数
-      +----------------------------------------------------------
-     * @access public
-      +----------------------------------------------------------
-     * @param array $totalRows  总的记录数
-     * @param array $listRows  每页显示记录数
-     * @param array $parameter  分页跳转的参数
-      +----------------------------------------------------------
+     * Construct function
+     * 
+     * @param integer $totalRows
+     * @param integer $listRows
+     * @param string $parameter
      */
     public function __construct($totalRows, $listRows, $parameter = '') {
         parent::__construct();
         $this->totalRows = $totalRows;
         $this->parameter = $parameter;
-        $this->rollPage = self::PAGE_ROLLPAGE; // 默认分页跳转变量
         $this->listRows = !empty($listRows) ? $listRows : self::PAGE_LISTROWS; // 分页显示页数
         $this->totalPages = ceil($this->totalRows / $this->listRows);  //总页数
-        $this->coolPages = ceil($this->totalPages / $this->rollPage);
         $this->nowPage = !empty($_GET[self::VAR_PAGE]) ? $_GET[self::VAR_PAGE] : 1;
         if (!empty($this->totalPages) && $this->nowPage > $this->totalPages) {
             $this->nowPage = $this->totalPages;
@@ -60,8 +47,8 @@ class Page extends Base {
 
     /**
      * 
-     * @param type $name
-     * @param type $value
+     * @param string $name
+     * @param mixed $value
      */
     public function setConfig($name, $value) {
         if (isset($this->config[$name])) {
@@ -80,7 +67,7 @@ class Page extends Base {
 
     /**
      * 
-     * @param type $var
+     * @param string $var
      */
     public function setMethod($var) {
         $this->method = $var;
