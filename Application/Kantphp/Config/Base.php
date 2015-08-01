@@ -108,20 +108,13 @@ return array(
     'cache' => array(
         //default file cache type
         'defalut' => array(
-            'type' => 'file',
-            'debug' => true,
-            'pconnect' => 0,
-            'autoconnect' => 0
+            'type' => 'file'
         ),
         //memcache type
         'memcache' => array(
             'type' => 'memcache',
             'hostname' => 'localhost',
-            'port' => 11211,
-            'timeout' => 0,
-            'debug' => true,
-            'pconnect' => 0,
-            'autoconnect' => 0
+            'port' => 11211
         ),
         //redis cache type
         'redis' => array(

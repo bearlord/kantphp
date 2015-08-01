@@ -135,8 +135,9 @@ class Router {
                     for ($i = 1; $i < count($matches); $i++) {
                         $pathInfo = str_replace("$" . $i, $matches[$i], $pathInfo);
                     }
+                    break;
                 }
-                break;
+                
             }
         }
         return $this->_dynamicMatch($pathInfo);

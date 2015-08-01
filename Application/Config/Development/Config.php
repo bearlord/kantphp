@@ -10,7 +10,9 @@ return array(
         )
     ),
     'route_rules' => array(
-        '|topic/id,(\d+)|i' => 'blog/detail/index/id,$1/c,$2'
+        
+        '|topic/id,(\d+)|s' => 'blog/detail/index/id,$1/c,$2',
+        '|cache|' => 'demo/cache',
     ),
     'path_info_repair' => false,
     'debug' => true,
@@ -103,20 +105,13 @@ return array(
     'cache' => array(
         //default file cache type
         'defalut' => array(
-            'type' => 'file',
-            'debug' => true,
-            'pconnect' => 0,
-            'autoconnect' => 0
+            'type' => 'file'
         ),
         //memcache type
         'memcache' => array(
             'type' => 'memcache',
             'hostname' => 'localhost',
-            'port' => 11211,
-            'timeout' => 0,
-            'debug' => true,
-            'pconnect' => 0,
-            'autoconnect' => 0
+            'port' => 11211
         ),
         //redis cache type
         'redis' => array(

@@ -501,7 +501,7 @@
                         <p>付款过程肯定要卸载模型中，除了主表外，还有2张附表。</p>
                         <p>对应的模型为OrderModel，方法名称为pay</p>
                         <blockquote>
-                            <ol>
+                            <ol class="linenums">
                                 <li><code>class Order extends BaseModel{</code></li>
                                 <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>protected $table = 'order';</code> //订单表</li>
                                 <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>protected $tableUserBlance = 'user_blance';</code> //客户余额表</li>
@@ -556,12 +556,83 @@
                     </div>
                     <div class="help-post" id="cookie">
                         <h2>10. COOKIE</h2>
+                        <p>KantPHP Framework在基类中封装了Cookie方法,可用于生成加密的COOKIE，以及获取解密后的COOKIE。由于是基类方法，可以在控制器和模型中使用。</p>
+                        <h3>10.1 配置</h3>
+                        <p>打开配置文件，转到cookie项</p>
+                        <blockquote>
+                            <ol class="linenums">
+
+                                <li><code>'cookie_path' => '/',</code> //Cookie路径</li>
+                                <li><code>'cookie_pre' => 'kantphp_',</code> //Cookie前缀</li>
+                                <li><code>'cookie_ttl' => 0,</code> //Cookie生存时间</li>
+                                <li><code>'auth_key' => 'NMa1FcQBE1HHHd4AQyTV'</code> //<b>重要。Cookie加密的密钥，项目开始前一定要更改。</b></li>
+                                <li><code>'cookie_domain' => '',</code> //Cookie作用域</li>
+                            </ol>
+                        </blockquote>
+                        <h3>10.2 用法</h3>
+                        <p>设置Cookie</p>
+                        <p><code>$this->cookie->set('myname', 'dongzhu');</code> //$_COOKIE['myname']为base64字符串</p>
+                        <p>获取Cookie</p>
+                        <p><code>$myname = $this->cookie->get('myname');</code> //获取解密后COOKIE。</p>
                     </div>
                     <div class="help-post" id="session">
                         <h2>11. SESSION</h2>
+                        <p>KantPHP Framework在基类中封装了SESSION方法。SESSION可选则原生态、保存到指定文件、保存到SqLite。其他保存到MySQL，PostgreSQL等数据库或者Memcache,Redis请开发者参考实例完成。原理是通过PHP的 session_set_save_handler 自定义SESSON保存对象。</p>
+                        <h3>11.1 配置</h3>
+                        <p>打开配置文件，转到session项。$_SESSION默认读取 defautl 的配置项，即$config['session']['default']。</p>
+                        <blockquote>
+                            <ol class="linenums">
+                                <li><code>'default' => array(</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'type' => 'original',</code> //原生态SESSION</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'maxlifetime' => 1800,</code> //Session生命周期</li>
+                                <li><code>),</code></li>
+                                <li><code>'file' => array(</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'type' => 'file',</code> //Session保存到指定文件</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'maxlifetime' => 1800,</code> //Session生命周期</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>auth_key' => 'NMa1FcQBE1HHHd4AQyTV'</code> //Session加密密钥</li>
+                                <li><code>),</code></li>
+                                <li><code>'sqlite' => array(</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'type' => 'sqlite',</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'maxlifetime' => 1800,</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'auth_key' => 'NMa1FcQBE1HHHd4AQyTV'</code> //Session加密密钥</li>
+                                <li><code>)</code></li>
+                            </ol>
+                        </blockquote>
+                        <p>已有3种模式的例子。选择与你的Session模式，改动下配置参数就行。</p>
+                        <h3>11.2 用法</h3>
+                        <p>Sessiion已经开启，不要再继续使用session_start()。像原生态PHP设置和获取Session一样操作。如</p>
+                        <p><code>$_SESSION['myname'] = 'dongzhu';</code>。</p>
+                        <p><code>$myname = $_SESSION['myname'];</code>。</p>
                     </div>
                     <div class="help-post" id="cache">
                         <h2>12. CACHE</h2>
+                        <p>数据的缓存功能。KantPHP Framework在基类中集成了Cahche方法。在之前的 <a href="#controller">7.控制器</a> 章节中已经提及过。</p>
+                        <h3>12.1 配置</h3>
+                        <p>打开配置文件，转到cache项。缓存支持保存到文件，Memcache, Redis。但Cache初始化时，读取的是 default 配置项$config['cache']['deault']。</p>
+                        <blockquote>
+                            <ol class="linenums">
+                                <li><code>'default' => array(</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'type' => 'file'</code> //文件缓存</li>
+                                <li><code>),</code></li>
+                                <li><code>'file' => array(</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'type' => 'memcache',</code> //Memcache缓存</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'hostname' => 'localhost',</code> //Memcache主机名</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'port' => 11211</code> //Memcache端口号</li>
+                                <li><code>),</code></li>
+                                <li><code>'sqlite' => array(</code></li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'type' => 'redis',</code> //Redis缓存</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'hostname' => 'localhost',</code> //Redis主机名</li>
+                                <li><span class="pln">&nbsp;&nbsp;&nbsp;&nbsp;</span><code>'port' => 6379</code> //Redis端口号</li>
+                                <li><code>)</code></li>
+                            </ol>
+                        </blockquote>
+                        <h3>12.2 用法</h3>
+                        <blockquote>
+                            <ol class="linenums">
+                                <li><code>$this-&gt;cache-&gt;set('var', 'hello world); </code> 缓存字符串'hello world'，查找的键为'var'。</li>
+                                <li><code>$this-&gt;cache-&gt;get('var');</code> 查找键为'var'的缓存内容。</li>
+                            </ol>
+                        </blockquote>
                     </div>
                     <div class="help-post" id="rewrite">
                         <h2>13. 路由与重写</h2>

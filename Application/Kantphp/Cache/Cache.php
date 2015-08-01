@@ -38,9 +38,6 @@ final class Cache {
         //default file cache type
         'defalut' => array(
             'type' => 'file',
-            'debug' => true,
-            'pconnect' => 0,
-            'autoconnect' => 0
         ),
         //memcache type
         'memcache' => array(
@@ -48,9 +45,6 @@ final class Cache {
             'hostname' => 'localhost',
             'port' => 11211,
             'timeout' => 0,
-            'debug' => true,
-            'pconnect' => 0,
-            'autoconnect' => 0
         ),
         //redis cache type
         'redis' => array(
