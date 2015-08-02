@@ -608,7 +608,7 @@
                         <h2>12. CACHE</h2>
                         <p>数据的缓存功能。KantPHP Framework在基类中集成了Cahche方法。在之前的 <a href="#controller">7.控制器</a> 章节中已经提及过。</p>
                         <h3>12.1 配置</h3>
-                        <p>打开配置文件，转到cache项。缓存支持保存到文件，Memcache, Redis。但Cache初始化时，读取的是 default 配置项$config['cache']['deault']。</p>
+                        <p>打开配置文件，转到cache项。缓存支持保存到文件，Memcache, Redis。Cache初始化时，读取的是 default 配置项$config['cache']['deault']。</p>
                         <blockquote>
                             <ol class="linenums">
                                 <li><code>'default' => array(</code></li>
@@ -636,7 +636,16 @@
                     </div>
                     <div class="help-post" id="rewrite">
                         <h2>13. 路由与重写</h2>
+                        <p>URL地址重写，有几大有点：1.美化URL。2.利于搜索引擎优化。3.提高安全性，避免暴露复杂的参数。</p>
+                        <p>URL地址重写，可以通过Apache，Nginx来填写规则。</p>
+                        <p>KantPHP Framework自带路由重写规则，把URL地址与特定的路由匹配。配置灵活方便。如：</p>
+                        <blockquote>
+                            <p>当用户输入<em>/topic/1002.html</em>时，实际访问地址为：<em>/blog/detail/index/id,1002.html</em></p>
+                        </blockquote>
+                        <h3>13.1 配置</h3>
+                        
                     </div>
+
                     <div class="help-post" id="cache">
                         <h2>14. 扩展</h2>
                     </div>
