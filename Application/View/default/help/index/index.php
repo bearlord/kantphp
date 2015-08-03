@@ -36,12 +36,11 @@
         <div class="help-masthead">
             <div class="container">
                 <nav class="help-nav">
-                    <a class="help-nav-item " href="#">KantPHP</a>
+                    <a class="help-nav-item " href="http://www.kantphp.com">KantPHP</a>
                     <a class="help-nav-item active" href="#">帮助文档</a>
                 </nav>
             </div>
         </div>
-
         <div class="container">
             <div class="help-header">
                 <h1 class="help-title">KantPHP帮助文档</h1>
@@ -61,9 +60,9 @@
                         <li><a href="#cookie">10.Cookie</a></li>
                         <li><a href="#session">11.Session</a></li>
                         <li><a href="#cache">12.Cache</a></li>
-                        <li><a href="#section-5">13.路由与重写</a></li>
-                        <li><a href="#section-5">14.扩展</a></li>
-                        <li><a href="#section-5">15.第三方类库</a></li>
+                        <li><a href="#rewrite">13.路由与重写</a></li>
+                        <li><a href="#extend">14.扩展</a></li>
+                        <li><a href="#thirdparty">15.第三方类库</a></li>
                     </ul>
                 </div>
                 <div class="col-xs-9 col-sm-8 help-main">
@@ -124,6 +123,7 @@
                         </div>
                         <h3>3.1 入口</h3>
                         <p>程序的入口文件是index.php。</p>
+                        <h3>3.2 流程图</h3>
                         <p>流程图完善中。</p>
                     </div><!-- /.help-post -->
                     <div class="help-post" id="configure">
@@ -629,28 +629,50 @@
                         <h3>12.2 用法</h3>
                         <blockquote>
                             <ol class="linenums">
-                                <li><code>$this-&gt;cache-&gt;set('var', 'hello world); </code> 缓存字符串'hello world'，查找的键为'var'。</li>
-                                <li><code>$this-&gt;cache-&gt;get('var');</code> 查找键为'var'的缓存内容。</li>
+                                <li><code>$this->cache->set('var', 'hello world); </code> 缓存字符串'hello world'，查找的键为'var'。</li>
+                                <li><code>$this->cache->get('var');</code> 查找键为'var'的缓存内容。</li>
                             </ol>
                         </blockquote>
                     </div>
                     <div class="help-post" id="rewrite">
                         <h2>13. 路由与重写</h2>
-                        <p>URL地址重写，有几大有点：1.美化URL。2.利于搜索引擎优化。3.提高安全性，避免暴露复杂的参数。</p>
+                        <p>URL地址重写，有几大优点：1.美化URL。2.利于搜索引擎优化。3.提高安全性，避免暴露复杂的参数。</p>
                         <p>URL地址重写，可以通过Apache，Nginx来填写规则。</p>
                         <p>KantPHP Framework自带路由重写规则，把URL地址与特定的路由匹配。配置灵活方便。如：</p>
                         <blockquote>
                             <p>当用户输入<em>/topic/1002.html</em>时，实际访问地址为：<em>/blog/detail/index/id,1002.html</em></p>
                         </blockquote>
                         <h3>13.1 配置</h3>
+                        <p>打开配置文件,转到route_rules项。数组中追加一个键值对即可。</p>
+                        <blockquote>
+                            <ol class="linenums">
+                                <li><code>'|topic/(\d+)+|i' => 'blog/detail/index/id,$1',</code> //key值为被重写后的url地址，value值为真实的url地址。正则界定符可以用||，也可以用//，为避免闹心的转义，建议用||。i是正则修正符。i表示不区分大小写。</li>
+                            </ol>
+                        </blockquote>
                         
                     </div>
-
-                    <div class="help-post" id="cache">
+                    <div class="help-post" id="extend">
                         <h2>14. 扩展</h2>
+                        <p>KantPHP Framework定位于轻量级框架，扩展性一般，预留扩展接口较少，但并非不可扩展，只是需要修改或重写底层代码。KantPHP Framework 采用BSD 3-Clause license协议， 对开发者约束是非常宽松的。代码量体裁衣，适合就行。</p>
+                        <p>例如如你觉得原生态模板引擎太OUT了，想载入Smarty模板。你则需要修改<em>/Application/Kantphp/View/View.php</em></p>
+                        <p>例如你想扩展BaseController方法，则需要修改<em>/Application/Kantphp/Controller/BaseController.php</em></p>
+                        <p>KantPHP Framework的代码结构清，即使不看说明文档，也可以轻车熟路的修改。</p>
+                        <p>如果在扩展中有遇到问题，欢迎给洞主发送邮件zhenqiang.zhang@hotmail.com。</p>
                     </div>
                     <div class="help-post" id="thirdparty">
                         <h2>15. 第三方类库</h2>
+                        <p>第三方类库地址位于<em>/Application/Library</em></p>
+                        <p>15.1 使用方法</p>
+                        <blockquote>
+                            <ol>
+                                <li>引入并初始化。<code>require "Page.php"; $PageObj = new Page([参数...]);</code></li>
+                                <li>$this->library() 方法。这需要文件名和类名一致。</li>
+                            </ol>
+                        </blockquote>
+                    </div>
+                    <div class="help-psot" id="end">
+                        <p>文档至此结束。【3.架构原理】留白，短期不完善。与很多框架原理类似，不想老调重弹。</p>
+                        <p>获取Pathinfo或者URL参数，进行调度。然后反射控制器，渲染视图，输出到浏览器。</p>
                     </div>
                 </div>
 

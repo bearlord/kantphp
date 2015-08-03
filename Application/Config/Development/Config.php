@@ -10,9 +10,9 @@ return array(
         )
     ),
     'route_rules' => array(    
-        '|topic/id,(\d+)|is' => 'blog/detail/index/id,$1',
-        '|cache|' => 'demo/cache',
-        '|get/(\d+)+|is' => 'demo/index/get/id,$1',
+        '|topic/id,(\d+)|i' => 'blog/detail/index/id,$1',
+        '|cache|i' => 'demo/cache',
+        '|get/(.+)+|is' => 'demo/index/get/id,$1',
     ),
     'path_info_repair' => false,
     'debug' => true,
