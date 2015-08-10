@@ -3,7 +3,7 @@
 /**
  * @package KantPHP
  * @author  Zhenqiang Zhang <565364226@qq.com>
- * @copyright (c) 2011 - 2013 KantPHP Studio, All rights reserved.
+ * @copyright (c) 2011 - 2015 KantPHP Studio, All rights reserved.
  * @license http://www.opensource.org/licenses/BSD-3-Clause  The BSD 3-Clause License
  */
 !defined('IN_KANT') && exit('Access Denied');
@@ -137,7 +137,6 @@ class Router {
                     }
                     break;
                 }
-                
             }
         }
         return $this->_dynamicMatch($pathInfo);
@@ -150,7 +149,20 @@ class Router {
      * @return array $dispatchInfo
      */
     protected function _dynamicMatch($pathInfo) {
-        $tmp = explode('/', $pathInfo);
+        //Special pathinof as demo/index/get/a,100/b,101?c=102&d=103
+        if (strpos($pathInfo, "?") > 0) {
+            $parse = explode("?", $pathInfo);
+            $tmp = explode('/', $parse[0]);
+            if (!empty($parse[1])) {
+                parse_str($parse[1], $query);
+                foreach ($query as $key => $val) {
+                    $dispatchInfo[$key] = urldecode($val);
+                }
+            }
+        } else {
+            //Normal pathinfo as demo/index/get/a,100/b,101
+            $tmp = explode('/', $pathInfo);
+        }
         if ($module = current($tmp)) {
             $dispatchInfo['module'] = ucfirst(current($tmp));
         } else {
@@ -165,7 +177,7 @@ class Router {
             if (strpos($action, "?") !== false) {
                 $action = substr($action, 0, strpos($action, "?"));
             }
-            if (strpos($action, ".") !== false) {
+            if (strpos($action, "&") !== false) {
                 $action = substr($action, 0, strpos($action, "."));
             }
             $dispatchInfo['act'] = ucfirst($action);

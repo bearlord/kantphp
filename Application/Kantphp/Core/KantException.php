@@ -3,7 +3,7 @@
 /**
  * @package KantPHP
  * @author  Zhenqiang Zhang <565364226@qq.com>
- * @copyright (c) 2011 - 2013 KantPHP Studio, All rights reserved.
+ * @copyright (c) 2011 - 2015 KantPHP Studio, All rights reserved.
  * @license http://www.opensource.org/licenses/BSD-3-Clause  The BSD 3-Clause License
  */
 !defined('IN_KANT') && exit('Access Denied');
@@ -26,8 +26,8 @@ class KantException extends Exception {
     public function __construct($msg = '', $code = 0, Exception $previous = null) {
         $config = KantRegistry::get('config');
         if ($config['debug'] == false) {
-            header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found");
-            header("Status: 404 Not Found");  
+            header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
+            header("Status: 404 Not Found");
             header("X-Powered-By: KantPHP Framework");
             echo '404 File Not Found!';
         }
@@ -35,7 +35,23 @@ class KantException extends Exception {
             parent::__construct($msg, (int) $code);
             $this->_previous = $previous;
         } else {
-            parent::__construct($msg, (int) $code, $previous);
+            $error = array();
+            $error['message'] = $msg;
+            $trace = $this->getTrace();
+            if ('E' == $trace[0]['function']) {
+                $error['file'] = $trace[0]['file'];
+                $error['line'] = $trace[0]['line'];
+            } else {
+                $error['file'] = $this->getFile();
+                $error['line'] = $this->getLine();
+            }
+            $error['trace'] = $this->getTraceAsString();
+            Log::write($error['message'], Log::ERR);
+            $exceptionFile = KANT_PATH . 'View/system/exception.php';
+            include $exceptionFile;
+            
+            exit();
+//            parent::__construct($msg, (int) $code, $previous);
         }
     }
 

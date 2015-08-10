@@ -3,7 +3,7 @@
 /**
  * @package KantPHP
  * @author  Zhenqiang Zhang <565364226@qq.com>
- * @copyright (c) 2011 - 2013 KantPHP Studio, All rights reserved.
+ * @copyright (c) 2011 - 2015 KantPHP Studio, All rights reserved.
  * @license http://www.opensource.org/licenses/BSD-3-Clause  The BSD 3-Clause License
  */
 !defined('IN_KANT') && exit('Access Denied');
@@ -28,7 +28,7 @@ class LogFile {
      * @param string $destination  写入目标
      * @return void
      */
-    public function write($log, $destination = '') {        var_dump($this->config);
+    public function write($log, $destination = '') {
         $now = date($this->config['log_time_format']);
         if (empty($destination))
             $destination = $this->config['log_path'] . date('y_m_d') . '.log';

@@ -3,7 +3,7 @@
 /**
  * @package KantPHP
  * @author  Zhenqiang Zhang <565364226@qq.com>
- * @copyright (c) 2011 - 2013 KantPHP Studio, All rights reserved.
+ * @copyright (c) 2011 - 2015 KantPHP Studio, All rights reserved.
  * @license http://www.opensource.org/licenses/BSD-3-Clause  The BSD 3-Clause License
  */
 !defined('IN_KANT') && exit('Access Denied');
@@ -129,7 +129,10 @@ final class Kant {
         //default timezone
         date_default_timezone_set(self::$_config['default_timezone']);
         //logfile initialization
-        Log::init();
+        Log::init(array(
+            'type' => 'File',
+            'log_path' => LOG_PATH
+        ));
         Hook::import(self::$_config['tags']);
         if (self::$_config['debug']) {
             ini_set('display_errors', 1);

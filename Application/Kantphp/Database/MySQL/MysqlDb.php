@@ -3,7 +3,7 @@
 /**
  * @package KantPHP
  * 
- * @copyright (c) 2011 - 2013 KantPHP Studio, All rights reserved.
+ * @copyright (c) 2011 - 2015 KantPHP Studio, All rights reserved.
  * @license BSD License.
  */
 !defined('IN_KANT') && exit('Access Denied');
@@ -121,6 +121,7 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
         }
         $this->sqls[] = $sql;
         $this->queryCount++;
+        $this->cacheSql();
         return $query;
     }
 
@@ -163,6 +164,8 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
         }
         $this->sqls[] = $sql;
         $this->queryCount++;
+        $this->cacheSql();
+        $this->clear();
         return $rows;
     }
 
@@ -187,45 +190,22 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
      * @return array an associative array of strings that corresponds to the fetched row, or
      * false if there are no more rows.
      */
-    public function fetch($fetchMode = '', $clearVar = true) {
-        $sql = $this->getSql(0);
+    public function fetch($fetchMode = '') {
+        $sql = $this->bluidSql("SELECT");
         $result = $this->query($sql);
-        $this->cacheSql();
-        if ($clearVar) {
-            $this->clear();
-        }
         return $result;
     }
 
     /**
      * Fetches the first column of the first row of the SQL result.
      * 
-     * @param type $fetchMode
-     * @param type $clearVar
      */
-    public function fetchOne($clearVar = true) {
-        if ($this->from) {
-            $this->limit = 1;
+    public function fetchOne() {
+        $this->limit = 1;
+        $result = $this->fetch();
+        if ($result) {
+            return $result[0];
         }
-        $sql = $this->getSql(0);
-        $query = mysql_query($sql, $this->dbh);
-        if (!$query) {
-            throw new KantException(sprintf("MySQL Query Error:%s,Error Code:%s", $sql, mysql_errno()));
-        }
-        if (is_resource($query) == false) {
-            return;
-        }
-        if (mysql_num_rows($query) == 0) {
-            return;
-        }
-        $row = mysql_fetch_array($query, MYSQL_ASSOC);
-        $this->sqls[] = $sql;
-        $this->queryCount++;
-        $this->cacheSql();
-        if ($clearVar) {
-            $this->clear();
-        }
-        return $row;
     }
 
     /**
@@ -235,12 +215,12 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
      * @param string $select
      * @param string $from
      * @param string $where
-     * @param string $groupBy
-     * @param string $orderBy
+     * @param string $groupby
+     * @param string $orderby
      * @param string $limit
      * @return array
      */
-    public function fetchEasy($select, $from, $where = null, $groupBy = null, $orderBy = null, $limit = null) {
+    public function fetchEasy($select, $from, $where = null, $groupby = null, $orderby = null, $limit = null) {
         $this->select($select);
         $this->from($from);
         if ($where) {
@@ -248,11 +228,11 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
                 $this->where($sk, $sv);
             }
         }
-        if ($groupBy) {
-            $this->groupBy($groupBy);
+        if ($groupby) {
+            $this->groupby($groupby);
         }
-        if ($orderBy) {
-            $this->orderBy($orderBy[0], $orderBy[1]);
+        if ($orderby) {
+            $this->orderby($orderby[0], $orderby[1]);
         }
         if ($limit) {
             $this->limit($limit[0], $limit[1]);
@@ -263,49 +243,33 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
     /**
      *  Insert Data
      * 
-     * @param boolean $replace
-     * @param boolean $clearVar
      * @return
      */
-    public function insert($replace = false, $clearVar = true) {
-        $sql = $this->insertSql($replace, 0);
+    public function insert() {
+        $sql = $this->bluidSql("INSERT");
         $this->execute($sql);
-        $this->cacheSql();
-        if ($clearVar) {
-            $this->clear();
-        }
         return $this->lastInsertId();
     }
 
     /**
      * Update Data
      * 
-     * @param boolean $clearVar
      * @return 
      */
-    public function update($clearVar = true) {
-        $sql = $this->insertSql(true);
+    public function update() {
+        $sql = $this->bluidSql("UPDATE");
         $result = $this->execute($sql);
-        $this->cacheSql();
-        if ($clearVar) {
-            $this->clear();
-        }
         return $result;
     }
 
     /**
      * Delete Data
      * 
-     * @param boolean $clearVar
      * @return
      */
-    public function delete($clearVar = true) {
-        $sql = $this->deleteSql();
+    public function delete() {
+        $sql = $this->bluidSql("DELETE");
         $result = $this->execute($sql);
-        $this->cacheSql();
-        if ($clearVar) {
-            $this->clear();
-        }
         return $result;
     }
 
@@ -316,13 +280,9 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
      * @param clear_var boolean
      * @return integer The number of rows in a result set on success&return.falseforfailure;.
      */
-    public function count($clearVar = true) {
-        $sql = $this->getSql(1);
+    public function count() {
+        $sql = $this->bluidSql("SELECT", true);
         $row = $this->query($sql);
-        $this->cacheSql();
-        if ($clearVar) {
-            $this->clear();
-        }
         return $row[0]['count'];
     }
 

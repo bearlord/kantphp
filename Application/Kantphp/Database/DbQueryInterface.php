@@ -3,7 +3,7 @@
 /**
  * @package KantPHP
  * @author  Zhenqiang Zhang <565364226@qq.com>
- * @copyright (c) 2011 - 2013 KantPHP Studio, All rights reserved.
+ * @copyright (c) 2011 - 2015 KantPHP Studio, All rights reserved.
  * @license http://www.opensource.org/licenses/BSD-3-Clause  The BSD 3-Clause License
  */
 
@@ -16,21 +16,21 @@
  */
 interface DbQueryInterface {
 
-    public function fetch($fetchMode = PDO::FETCH_ASSOC, $clearVar = true);
+    public function fetch($fetchMode = PDO::FETCH_ASSOC);
 
-    public function fetchEasy($select, $from, $where = null, $groupBy = null, $orderBy = null, $limit = null);
+    public function fetchEasy($select, $from, $where = null, $groupby = null, $orderby = null, $limit = null);
 
-    public function fetchOne($clearVar = true);
+    public function fetchOne();
 
-    public function insert($replace = false, $clearVar = true);
+    public function insert();
 
     public function lastInsertId($primaryKey = null);
 
-    public function update($clearVar = true);
+    public function update();
 
-    public function delete($clearVar = true);
+    public function delete();
 
-    public function count($clearVar = true);
+    public function count();
 
     public function begin();
 
