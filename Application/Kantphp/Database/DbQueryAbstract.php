@@ -20,6 +20,8 @@ abstract class DbQueryAbstract extends Base {
     //Connection identifier
     protected $dbh = '';
     protected $config;
+    protected $queryID;
+    protected $numRows;
     public $dbTablepre = '';
     protected $table = '';
     protected $where = '';

@@ -10,12 +10,6 @@
 
 class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
 
-    //Connection identifier
-    protected $dbh = '';
-    protected $config;
-    protected $queryID;
-    protected $numRows;
-
     /**
      *
      * Open database connection
@@ -133,8 +127,11 @@ class MysqlDb extends DbQueryAbstract implements DbQueryInterface {
      * @throws KantException
      */
     public function query($sql) {
+        $row = null;
         $cacheSqlMd5 = 'sql_' . md5($sql);
         if ($this->ttl) {
+            $this->cacheSql();
+            $this->clear();
             $rows = $this->cache->get($cacheSqlMd5);
             if (!empty($rows)) {
                 return $rows;

@@ -15,11 +15,7 @@
  * @since version 1.1
  * 
  */
-class PdoPgsqlDb extends DbQueryAbstract implements DbQueryInterface {
-
-    public function __construct() {
-        parent::__construct();
-    }
+class PgsqlDb extends DbQueryAbstract implements DbQueryInterface {
 
     /**
      *
@@ -92,7 +88,11 @@ class PdoPgsqlDb extends DbQueryAbstract implements DbQueryInterface {
         if (!is_object($this->dbh)) {
             $this->_connect();
         }
-
+        try {
+            $this->queryID = $this->dbh->exec($sql);
+        } catch (PDOException $e) {
+            throw new KantException(sprintf('PostgreSQL Query Error:%s,Error Code:%s', $sql, $this->dbh->errorCode()));
+        }
         $query = $this->dbh->exec($sql);
         if (!$query) {
             throw new KantException(sprintf('PostgreSQL Query Error:%s,Error Code:%s', $sql, $this->dbh->errorCode()));
@@ -111,8 +111,11 @@ class PdoPgsqlDb extends DbQueryAbstract implements DbQueryInterface {
      * @return array
      */
     public function query($sql, $fetchMode = PDO::FETCH_ASSOC) {
+        $row = null;
         $cacheSqlMd5 = 'sql_' . md5($sql);
         if ($this->ttl) {
+            $this->cacheSql();
+            $this->clear();
             $rows = $this->cache->get($cacheSqlMd5);
             if (!empty($rows)) {
                 return $rows;
@@ -131,6 +134,8 @@ class PdoPgsqlDb extends DbQueryAbstract implements DbQueryInterface {
         }
         $this->sqls[] = $sql;
         $this->queryCount++;
+        $this->cacheSql();
+        $this->clear();
         return $rows;
     }
 
@@ -156,13 +161,9 @@ class PdoPgsqlDb extends DbQueryAbstract implements DbQueryInterface {
      * @param clear_var boolean
      * @return array
      */
-    public function fetch($fetchMode = PDO::FETCH_ASSOC, $clearVar = true) {
-        $sql = $this->getSql(0);
+    public function fetch($fetchMode = PDO::FETCH_ASSOC) {
+        $sql = $this->bluidSql("SELECT");
         $result = $this->query($sql, $fetchMode);
-        $this->cacheSql();
-        if ($clearVar) {
-            $this->clear();
-        }
         return $result;
     }
 
@@ -170,26 +171,13 @@ class PdoPgsqlDb extends DbQueryAbstract implements DbQueryInterface {
      * Fetches the first column of the first row of the SQL result.
      * 
      * @param type $fetchMode
-     * @param type $clearVar
      */
-    public function fetchOne($clearVar = true) {
-        if ($this->from) {
-            $this->limit = 1;
+    public function fetchOne() {
+        $this->limit = 1;
+        $result = $this->fetch();
+        if ($result) {
+            return $result[0];
         }
-        $sql = $this->getSql(0);
-        if (!is_resource($this->dbh)) {
-            $this->_connect();
-        }
-        $sth = $this->dbh->prepare($sql);
-        $sth->execute();
-        $result = $sth->fetchColumn(0);
-        $this->sqls[] = $sql;
-        $this->queryCount++;
-        $this->cacheSql();
-        if ($clearVar) {
-            $this->clear();
-        }
-        return $result;
     }
 
     /**
@@ -199,12 +187,12 @@ class PdoPgsqlDb extends DbQueryAbstract implements DbQueryInterface {
      * @param string $select
      * @param string $from
      * @param string $where
-     * @param string $groupBy
-     * @param string $orderBy
+     * @param string $groupby
+     * @param string $orderby
      * @param string $limit
      * @return array
      */
-    public function fetchEasy($select, $from, $where = null, $groupBy = null, $orderBy = null, $limit = null) {
+    public function fetchEasy($select, $from, $where = null, $groupby = null, $orderby = null, $limit = null) {
         $this->select($select);
         $this->from($from);
         if ($where) {
@@ -212,11 +200,11 @@ class PdoPgsqlDb extends DbQueryAbstract implements DbQueryInterface {
                 $this->where($sk, $sv);
             }
         }
-        if ($groupBy) {
-            $this->groupBy($groupBy);
+        if ($groupby) {
+            $this->groupby($groupby);
         }
-        if ($orderBy) {
-            $this->orderBy($orderBy[0], $orderBy[1]);
+        if ($orderby) {
+            $this->orderby($orderby[0], $orderby[1]);
         }
         if ($limit) {
             $this->limit($limit[0], $limit[1]);
@@ -227,50 +215,34 @@ class PdoPgsqlDb extends DbQueryAbstract implements DbQueryInterface {
     /**
      *  Insert Data
      * 
-     * @param boolean $replace
-     * @param boolean $clearVar
      * @return
      */
-    public function insert($replace = false, $clearVar = true) {
-        $sql = $this->insertSql($replace, 0);
+    public function insert() {
+        $sql = $this->bluidSql("INSERT");
         $this->execute($sql);
-        $this->cacheSql();
         $lastInsertId = $this->lastInsertId($this->primary);
-        if ($clearVar) {
-            $this->clear();
-        }
         return $lastInsertId;
     }
 
     /**
      * Update Data
      * 
-     * @param boolean $clearVar
      * @return 
      */
-    public function update($clearVar = true) {
-        $sql = $this->insertSql(true, true);
-        $result = $this->execute($sql, 'unbuffer');
-        $this->_cacheSql();
-        if ($clearVar) {
-            $this->clear();
-        }
+    public function update() {
+        $sql = $this->bluidSql("UPDATE");
+        $result = $this->execute($sql);
         return $result;
     }
 
     /**
      * Delete Data
      * 
-     * @param boolean $clearVar
      * @return
      */
-    public function delete($clearVar = true) {
-        $sql = $this->deleteSql();
+    public function delete() {
+        $sql = $this->bluidSql("DELETE");
         $result = $this->execute($sql);
-        $this->cacheSql();
-        if ($clearVar) {
-            $this->clear();
-        }
         return $result;
     }
 
@@ -281,13 +253,9 @@ class PdoPgsqlDb extends DbQueryAbstract implements DbQueryInterface {
      * @param clear_var boolean
      * @return integer The number of rows in a result set on success&return.falseforfailure;.
      */
-    public function count($clearVar = true) {
-        $sql = $this->getSql(1);
+    public function count() {
+        $sql = $this->bluidSql("SELECT", true);
         $row = $this->query($sql);
-        $this->cacheSql();
-        if ($clearVar) {
-            $this->clear();
-        }
         return $row->result(0);
     }
 
