@@ -97,19 +97,19 @@ final class Driver {
                 break;
             case 'pdo_mysql' :
                 require_once KANT_PATH . 'Database/PDO/MysqlDb.php';
-                $class = 'PdoMysqlDb';
+                $class = 'MysqlDb';
                 break;
             case 'pdo_sqlite';
                 require_once KANT_PATH . 'Database/PDO/SqliteDb.php';
-                $class = 'PdoSqliteDb';
+                $class = 'SqliteDb';
                 break;
             case 'pdo_pgsql':
                 require_once KANT_PATH . 'Database/PDO/PgsqlDb.php';
-                $class = 'PdoPgsqlDb';
+                $class = 'PgsqlDb';
                 break;
             case 'default':
                 require_once KANT_PATH . 'Database/PDO/PgsqlDb.php';
-                $class = 'PdoPgsqlDb';
+                $class = 'PgsqlDb';
                 break;
         }
         if (!class_exists($class)) {
