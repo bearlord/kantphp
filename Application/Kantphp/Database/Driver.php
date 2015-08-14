@@ -113,7 +113,7 @@ final class Driver {
                 break;
         }
         if (!class_exists($class)) {
-            throw new RuntimeException(sprintf('Unable to load Database Driver: %s', $this->_dbConfig[$db_name]['type']));
+            throw new KantException(sprintf('Unable to load Database Driver: %s', $this->_dbConfig[$db_name]['type']));
         }
         $object = new $class;
         $object->open($this->_dbConfig[$db_name]);
